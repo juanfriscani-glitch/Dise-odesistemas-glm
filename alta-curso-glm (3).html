@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1366">
+<title>Alta de Curso — GLM Dermofarmacia</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --magenta:       #E91E8C;
+    --magenta-hover: #C8187A;
+    --magenta-light: #fce4f3;
+    --magenta-pale:  #fdf0f8;
+    --dark:          #1a1a1a;
+    --gray-dark:     #444;
+    --gray-mid:      #777;
+    --gray-light:    #bbb;
+    --border:        #e8e3ef;
+    --bg:            #ffffff;
+    --bg-page:       #fafafa;
+    --bg-section:    #ffffff;
+    --error:         #d32f2f;
+    --success:       #2e7d32;
+    --pink-bg:       linear-gradient(135deg, #fff 0%, #fce8f5 100%);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-page);
+    color: var(--dark);
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-logo {
+    display: flex; align-items: flex-end; gap: 2px;
+  }
+  .logo-glm {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: -1px;
+    color: var(--dark);
+    line-height: 1;
+  }
+  .logo-sub {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+    margin-bottom: 3px;
+    margin-left: 2px;
+  }
+
+  .topbar-nav {
+    display: flex; gap: 24px; align-items: center;
+  }
+  .topbar-nav a {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--gray-dark); text-decoration: none;
+    transition: color 0.15s;
+  }
+  .topbar-nav a:hover { color: var(--magenta); }
+  .topbar-nav a.active { color: var(--magenta); border-bottom: 2px solid var(--magenta); padding-bottom: 2px; }
+
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .topbar-user-name {
+    font-size: 12px; color: var(--gray-mid);
+  }
+  .topbar-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--magenta-light);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 12px;
+    color: var(--magenta);
+  }
+
+  /* ── BANNER PILL ── */
+  .banner-pill {
+    background: var(--dark);
+    padding: 10px 32px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: #ccc;
+  }
+  .banner-pill .pill-icon { font-size: 14px; }
+  .banner-pill strong { color: var(--magenta); font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.06em; }
+  .banner-pill span { color: #eee; }
+
+  /* ── BREADCRUMB ── */
+  .breadcrumb {
+    padding: 12px 32px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--gray-mid);
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+  }
+  .breadcrumb a { color: var(--magenta); text-decoration: none; font-weight: 500; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb-sep { color: var(--gray-light); }
+  .breadcrumb-current { color: var(--dark); font-weight: 600; }
+
+  /* ── PAGE ── */
+  .page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 32px 28px 60px;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid var(--border);
+  }
+  .page-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--magenta-pale);
+    border: 1px solid var(--magenta-light);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--magenta);
+    margin-bottom: 10px;
+  }
+  .page-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 24px; font-weight: 800;
+    color: var(--dark); line-height: 1.15;
+    margin-bottom: 6px;
+  }
+  .page-title em {
+    font-style: italic; color: var(--magenta);
+  }
+  .page-subtitle { font-size: 13px; color: var(--gray-mid); }
+
+  .id-badge {
+    text-align: right;
+    flex-shrink: 0; margin-left: 24px;
+  }
+  .id-badge-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--gray-light); font-weight: 600; margin-bottom: 4px;
+  }
+  .id-badge-value {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px; font-weight: 800;
+    color: var(--gray-light); letter-spacing: -0.5px;
+  }
+  .id-badge-value.assigned { color: var(--magenta); }
+  .id-badge-note { font-size: 10px; color: var(--gray-light); font-style: italic; margin-top: 2px; }
+
+  /* ── REQUIRED LEGEND ── */
+  .req-legend {
+    font-size: 11px; color: var(--gray-mid);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .req-legend .ast { color: var(--magenta); font-size: 14px; font-weight: 700; }
+
+  /* ── SECTION CARD ── */
+  .section-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .section-card:focus-within {
+    border-color: var(--magenta-light);
+    box-shadow: 0 0 0 3px rgba(233,30,140,0.06);
+  }
+
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none;
+    background: #fefefe;
+    transition: background 0.15s;
+  }
+  .section-header:hover { background: var(--magenta-pale); }
+
+  .section-num-pill {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--magenta);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 800; color: #fff;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--dark); flex: 1;
+  }
+  .section-toggle { color: var(--gray-light); font-size: 13px; transition: transform 0.2s; }
+  .section-toggle.open { transform: rotate(180deg); }
+
+  .section-body {
+    padding: 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 24px;
+  }
+  .section-body.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* ── FIELDS ── */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field.span-2 { grid-column: span 2; }
+  .field.span-3 { grid-column: span 3; }
+
+  .field label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--gray-dark);
+    display: flex; align-items: center; gap: 3px;
+  }
+  .field label .ast { color: var(--magenta); font-size: 13px; }
+  .field-hint { font-size: 10px; color: var(--gray-light); font-style: italic; }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100%; height: 38px;
+    padding: 0 13px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; color: var(--dark);
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    appearance: none;
+  }
+  textarea { height: 72px; padding: 10px 13px; resize: vertical; line-height: 1.5; }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--magenta);
+    box-shadow: 0 0 0 3px rgba(233,30,140,0.1);
+  }
+  input[readonly], input[disabled], select[disabled] {
+    background: #f7f5f9; color: var(--gray-mid);
+    cursor: not-allowed;
+  }
+  input.error, select.error { border-color: var(--error); }
+
+  .select-wrapper { position: relative; }
+  .select-wrapper select { padding-right: 34px; cursor: pointer; }
+  .select-wrapper::after {
+    content: '';
+    position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+    width: 0; height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--gray-mid);
+    pointer-events: none;
+  }
+
+  .inline-group { display: flex; gap: 8px; align-items: stretch; }
+  .inline-group input { flex: 1; }
+  .prefix {
+    height: 38px; padding: 0 10px;
+    background: #f7f5f9; border: 1.5px solid var(--border);
+    border-radius: 8px; display: flex; align-items: center;
+    font-size: 13px; color: var(--gray-mid); white-space: nowrap;
+    font-weight: 500;
+  }
+
+  /* ── VIGENCIA BADGE ── */
+  .vigencia-badge {
+    height: 38px; padding: 0 14px;
+    border-radius: 8px; display: inline-flex; align-items: center; gap: 7px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  }
+  .vigencia-badge.nd    { background: #f5f5f5; color: var(--gray-mid); border: 1.5px solid #e0e0e0; }
+  .vigencia-badge.vigente { background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; }
+  .vigencia-badge.prog  { background: #fff8e1; color: #e65100; border: 1.5px solid #ffcc80; }
+  .vigencia-badge.fin   { background: #fce4ec; color: #c62828; border: 1.5px solid #f48fb1; }
+  .vigencia-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  /* ── CHECKBOX ── */
+  .check-row {
+    display: flex; align-items: center; gap: 9px;
+    height: 38px; padding: 0 13px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    background: #fff; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .check-row:hover { border-color: var(--magenta); background: var(--magenta-pale); }
+  .check-row input[type="checkbox"] {
+    width: 15px; height: 15px;
+    accent-color: var(--magenta);
+    cursor: pointer; flex-shrink: 0;
+    padding: 0; margin: 0; border: none;
+  }
+  .check-row span { font-size: 12px; color: var(--dark); }
+
+  /* ── PROF PANEL ── */
+  .prof-panel {
+    grid-column: span 2;
+    background: var(--magenta-pale);
+    border: 1.5px solid var(--magenta-light);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: none;
+  }
+  .prof-panel.visible { display: block; }
+  .prof-panel-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--magenta); margin-bottom: 10px;
+  }
+  .prof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .prof-item label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray-mid); font-weight: 600; display: block; margin-bottom: 2px; }
+  .prof-item span { font-size: 12px; color: var(--dark); font-weight: 500; }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    grid-column: span 3;
+    display: flex; gap: 10px;
+    padding: 12px 14px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    font-size: 11px; color: #0369a1; line-height: 1.6;
+  }
+
+  /* ── DIVIDER ── */
+  .divider { grid-column: 1/-1; height: 1px; background: var(--border); margin: 2px 0; }
+
+  /* ── VALIDATION ── */
+  .val-msg { font-size: 10px; color: var(--error); display: none; margin-top: 1px; }
+  .field.has-error .val-msg { display: block; }
+  .field.has-error label { color: var(--error); }
+
+  /* ── SPINNER ── */
+  .spinner {
+    display: none; width: 13px; height: 13px;
+    border: 2px solid var(--magenta-light);
+    border-top-color: var(--magenta);
+    border-radius: 50%;
+    animation: spin 0.5s linear infinite;
+    margin-left: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── ACTION BAR ── */
+  .action-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 22px;
+    margin-top: 8px;
+  }
+  .action-left { display: flex; gap: 8px; }
+
+  .btn {
+    height: 38px; padding: 0 20px;
+    border-radius: 30px; border: none;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer; transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+    text-transform: uppercase;
+  }
+  .btn-primary {
+    background: var(--magenta); color: #fff;
+    box-shadow: 0 4px 14px rgba(233,30,140,0.3);
+  }
+  .btn-primary:hover { background: var(--magenta-hover); box-shadow: 0 6px 20px rgba(233,30,140,0.4); transform: translateY(-1px); }
+  .btn-outline {
+    background: #fff; color: var(--dark);
+    border: 1.5px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--magenta); color: var(--magenta); }
+  .btn-ghost {
+    background: transparent; color: var(--gray-mid);
+    border: 1.5px dashed var(--border);
+  }
+  .btn-ghost:hover { color: var(--dark); border-color: var(--gray-mid); }
+  .btn-danger {
+    background: transparent; color: var(--error);
+    border: 1.5px solid #fecaca;
+  }
+  .btn-danger:hover { background: #fff5f5; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    padding: 12px 20px; border-radius: 30px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    z-index: 999;
+    transform: translateY(60px); opacity: 0;
+    transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.ok  { background: var(--magenta); color: #fff; }
+  .toast.err { background: #d32f2f; color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div>
+      <div class="logo-glm">glm</div>
+      <div class="logo-sub">Dermofarmacia</div>
+    </div>
+  </div>
+  <nav class="topbar-nav">
+    <a href="#">Inicio</a>
+    <a href="#">Sobre mi</a>
+    <a href="#">Servicios</a>
+    <a href="#" class="active">Cursos de Dermofarmacia</a>
+    <a href="#">Tienda</a>
+    <a href="#">Blog</a>
+    <a href="#">Contacto</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-user-name">María García</span>
+    <div class="topbar-avatar">MG</div>
+  </div>
+</div>
+
+<!-- BANNER PILL -->
+<div class="banner-pill">
+  <span class="pill-icon">🌸</span>
+  <strong>MARLENY · TU GUÍA GLM</strong>
+  <span>Panel de administración · Usuario con permiso Alta-ModifCursos</span>
+</div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="#">Inicio</a>
+  <span class="breadcrumb-sep">›</span>
+  <a href="#">Gestión académica</a>
+  <span class="breadcrumb-sep">›</span>
+  <a href="#">Cursos</a>
+  <span class="breadcrumb-sep">›</span>
+  <span class="breadcrumb-current">Alta de curso</span>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <div class="page-eyebrow">✨ Academia GLM Dermofarmacia</div>
+      <div class="page-title">Alta de <em>curso</em></div>
+      <div class="page-subtitle">Registrá un nuevo curso, vinculándolo con una temática vigente y un profesor responsable.</div>
+    </div>
+    <!-- Encabezado: Modo de operación + ID Curso -->
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+      <div class="id-badge">
+        <div class="id-badge-label">Modo de operación</div>
+        <div class="id-badge-value" style="font-size:14px;color:var(--magenta);letter-spacing:0;">Alta</div>
+        <div class="id-badge-note">No editable · calculado por el sistema</div>
+      </div>
+      <div class="id-badge">
+        <div class="id-badge-label">ID Curso</div>
+        <div class="id-badge-value" id="display-id">——————</div>
+        <div class="id-badge-note">Autoincremental · asignado al guardar</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="req-legend"><span class="ast">*</span> Campo obligatorio</div>
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 1 · DATOS BÁSICOS
+  ══════════════════════════════════════ -->
+  <div class="section-card" id="sec1">
+    <div class="section-header" onclick="toggleSec('sec1')">
+      <div class="section-num-pill">1</div>
+      <span class="section-title">Datos básicos del curso</span>
+      <span class="section-toggle open" id="sec1-tog">▾</span>
+    </div>
+    <div class="section-body" id="sec1-body">
+
+      <!-- Nombre -->
+      <div class="field span-2" id="f-nombre">
+        <label>Nombre del curso <span class="ast">*</span></label>
+        <input type="text" id="nombre" placeholder="Ej: Expertos en Dermofarmacia — Cohorte 2025" maxlength="100">
+        <div class="field-hint">Alfanumérico. Máximo 100 caracteres.</div>
+        <div class="val-msg">El nombre del curso es obligatorio.</div>
+      </div>
+
+      <!-- Temática -->
+      <div class="field" id="f-tematica">
+        <label>Temática <span class="ast">*</span></label>
+        <div class="select-wrapper">
+          <select id="tematica" onchange="onTematica()">
+            <option value="">— Seleccione una temática —</option>
+            <option value="DER">DER — Dermatología clínica</option>
+            <option value="COS">COS — Cosmética y cuidado facial</option>
+            <option value="FAR">FAR — Farmacología dermatológica</option>
+            <option value="NUT">NUT — Nutrición y piel</option>
+            <option value="PED">PED — Dermatología pediátrica</option>
+          </select>
+        </div>
+        <div class="field-hint">Solo temáticas vigentes. Al cambiar, actualiza y limpia el profesor.</div>
+        <div class="val-msg">Debe seleccionar una temática.</div>
+      </div>
+
+      <!-- Profesor -->
+      <div class="field" id="f-profesor">
+        <label>
+          Profesor/a responsable <span class="ast">*</span>
+          <div class="spinner" id="spinner"></div>
+        </label>
+        <div class="select-wrapper">
+          <select id="profesor" onchange="onProfesor()" disabled>
+            <option value="">— Primero seleccione una temática —</option>
+          </select>
+        </div>
+        <div class="field-hint">Solo docentes con vínculo vigente en la temática elegida.</div>
+        <div class="val-msg">Debe seleccionar un/a profesor/a responsable.</div>
+      </div>
+
+      <!-- Panel datos profesor -->
+      <div class="prof-panel" id="prof-panel">
+        <div class="prof-panel-title">Datos del profesor seleccionado</div>
+        <div class="prof-grid">
+          <div class="prof-item"><label>Nombre completo</label><span id="p-nombre">—</span></div>
+          <div class="prof-item"><label>Tipo y N.º de documento (capturado internamente)</label><span id="p-doc">—</span></div>
+          <div class="prof-item"><label>Especialización declarada</label><span id="p-esp">—</span></div>
+          <div class="prof-item"><label>Vínculo con temática</label><span id="p-estado" style="color:var(--magenta);font-weight:700;">Vigente ✓</span></div>
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="field span-2" id="f-descripcion">
+        <label>Descripción <span class="ast">*</span></label>
+        <textarea id="descripcion" placeholder="Descripción del curso (contenido, objetivos, destinatarios)..." maxlength="500"></textarea>
+        <div class="field-hint">Obligatorio. Alfanumérico. Máximo 500 caracteres.</div>
+        <div class="val-msg">La descripción es obligatoria.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 2 · VALORES Y VIGENCIA
+  ══════════════════════════════════════ -->
+  <div class="section-card" id="sec2">
+    <div class="section-header" onclick="toggleSec('sec2')">
+      <div class="section-num-pill">2</div>
+      <span class="section-title">Valores y vigencia</span>
+      <span class="section-toggle open" id="sec2-tog">▾</span>
+    </div>
+    <div class="section-body cols-3" id="sec2-body">
+
+      <!-- Precio -->
+      <div class="field" id="f-precio">
+        <label>Precio (ARS) <span class="ast">*</span></label>
+        <div class="inline-group">
+          <span class="prefix">$</span>
+          <input type="number" id="precio" placeholder="0,00" min="0" step="0.01">
+        </div>
+        <div class="field-hint">Formato $999.999.999,99. Debe ser ≥ 0. Ingreso manual.</div>
+        <div class="val-msg">Ingrese un precio válido (mayor o igual a 0).</div>
+      </div>
+
+      <!-- Duración estimada -->
+      <div class="field" id="f-duracion">
+        <label>Duración estimada (hs) <span class="ast">*</span></label>
+        <div class="inline-group">
+          <input type="number" id="duracion" placeholder="0,00" min="0" max="999.99" step="0.01">
+          <span class="prefix">hs.</span>
+        </div>
+        <div class="field-hint">Numérico. Formato 999,99. Longitud 5.</div>
+        <div class="val-msg">Ingrese la duración estimada.</div>
+      </div>
+
+      <!-- Comisión profesor -->
+      <div class="field" id="f-comision">
+        <label>Comisión profesor (%) <span class="ast">*</span></label>
+        <div class="inline-group">
+          <input type="number" id="comision" placeholder="0,00" min="0" max="100" step="0.01">
+          <span class="prefix">%</span>
+        </div>
+        <div class="field-hint">Numérico. Formato %999,99. No debe superar 100,00.</div>
+        <div class="val-msg">Ingrese la comisión del profesor (máx. 100).</div>
+      </div>
+
+      <!-- Vigente desde -->
+      <div class="field" id="f-desde">
+        <label>Vigente desde <span class="ast">*</span></label>
+        <input type="date" id="fecha-desde" onchange="recalcVig()">
+        <div class="field-hint">Obligatorio. Formato DD/MM/AAAA.</div>
+        <div class="val-msg">La fecha de inicio de vigencia es obligatoria.</div>
+      </div>
+
+      <!-- Vigente hasta -->
+      <div class="field" id="f-hasta">
+        <label>Vigente hasta</label>
+        <input type="date" id="fecha-hasta" onchange="recalcVig()">
+        <div class="field-hint">Opcional. Si se informa, debe ser ≥ Vigente desde.</div>
+        <div class="val-msg">La fecha de fin debe ser posterior o igual a Vigente desde.</div>
+      </div>
+
+      <!-- Estado de vigencia (calculado) -->
+      <div class="field">
+        <label>Estado de vigencia</label>
+        <div class="vigencia-badge nd" id="vig-badge">
+          <span class="vigencia-dot"></span>
+          <span id="vig-text">Sin determinar</span>
+        </div>
+        <div class="field-hint">Calculado por el sistema. No se almacena.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 3 · INTEGRACIONES Y ENCUESTAS
+  ══════════════════════════════════════ -->
+  <div class="section-card" id="sec3">
+    <div class="section-header" onclick="toggleSec('sec3')">
+      <div class="section-num-pill">3</div>
+      <span class="section-title">Integraciones y encuestas</span>
+      <span class="section-toggle open" id="sec3-tog">▾</span>
+    </div>
+    <div class="section-body cols-2" id="sec3-body">
+
+      <!-- Encuesta finalización -->
+      <div class="field" id="f-enc-fin">
+        <label>Encuesta de finalización <span class="ast">*</span></label>
+        <input type="text" id="enc-fin" placeholder="https://…" maxlength="255">
+        <div class="field-hint">Obligatorio. Hipervínculo. Máximo 255 caracteres.</div>
+        <div class="val-msg">Ingrese una URL válida para la encuesta de finalización.</div>
+      </div>
+
+      <!-- Encuesta abandono -->
+      <div class="field" id="f-enc-abandono">
+        <label>Encuesta de abandono <span class="ast">*</span></label>
+        <input type="text" id="enc-abandono" placeholder="https://…" maxlength="255">
+        <div class="field-hint">Obligatorio. Hipervínculo. Máximo 255 caracteres.</div>
+        <div class="val-msg">Ingrese una URL válida para la encuesta de abandono.</div>
+      </div>
+
+      <!-- ID Oferta Web -->
+      <div class="field" id="f-oferta">
+        <label>ID oferta web</label>
+        <input type="number" id="id-oferta-web" placeholder="000000" min="0" max="999999">
+        <div class="field-hint">Opcional. Numérico, 6 posiciones. Debe ser único por curso.</div>
+        <div class="val-msg">El ID oferta web debe ser un número de hasta 6 posiciones.</div>
+      </div>
+
+      <!-- ID Artículo ERP -->
+      <div class="field" id="f-erp">
+        <label>ID artículo ERP</label>
+        <input type="number" id="id-erp" placeholder="000000" min="0" max="999999">
+        <div class="field-hint">Opcional. Numérico, 6 posiciones. Puede repetirse entre cursos.</div>
+        <div class="val-msg">El ID artículo ERP debe ser un número de hasta 6 posiciones.</div>
+      </div>
+
+      <div class="info-box" style="grid-column:span 2;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Los IDs de oferta web y artículo ERP pueden ser informados por el usuario o recuperados automáticamente por el sistema al sincronizar con la web o el ERP. El sistema capturará internamente CodTipoDocProf y NumDocProf del profesor seleccionado.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ACTION BAR -->
+  <div class="action-bar">
+    <div class="action-left">
+      <button class="btn btn-danger" onclick="limpiar()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+        Limpiar
+      </button>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn btn-outline" onclick="cancelar()">Cancelar</button>
+      <button class="btn btn-primary" id="btn-guardar" onclick="guardarCurso()" disabled>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar curso
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg id="t-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="t-msg"></span>
+</div>
+
+<script>
+// ─── DATA MOCK ───────────────────────────────────────────
+const PROFS = {
+  DER: [
+    { v:"P001", l:"Rodríguez, Ana Paula - DNI 28.456.789", n:"Ana Paula Rodríguez", d:"DNI 28.456.789 (cod.01)", e:"Dermatología clínica avanzada" },
+    { v:"P002", l:"Mitre, Carlos - DNI 22.111.333",        n:"Carlos Mitre",         d:"DNI 22.111.333 (cod.01)", e:"Dermatosis inflamatorias" },
+  ],
+  COS: [
+    { v:"P003", l:"Sánchez, Laura B. - DNI 31.200.100",    n:"Laura B. Sánchez",    d:"DNI 31.200.100 (cod.01)", e:"Cosmética activa y anti-edad" },
+    { v:"P004", l:"Díaz, Martín - DNI 25.876.543",         n:"Martín Díaz",          d:"DNI 25.876.543 (cod.01)", e:"Formulación cosmética" },
+  ],
+  FAR: [
+    { v:"P005", l:"Gómez, Valeria - DNI 30.000.999",       n:"Valeria Gómez",        d:"DNI 30.000.999 (cod.01)", e:"Farmacología tópica" },
+  ],
+  NUT: [
+    { v:"P006", l:"Torres, Ignacio - DNI 26.543.210",      n:"Ignacio Torres",       d:"DNI 26.543.210 (cod.01)", e:"Nutrición y dermatología" },
+  ],
+  PED: [
+    { v:"P007", l:"Navarro, Cecilia - DNI 29.876.001",     n:"Cecilia Navarro",      d:"DNI 29.876.001 (cod.01)", e:"Dermatología pediátrica" },
+    { v:"P008", l:"Herrera, Diego - DNI 27.432.100",       n:"Diego Herrera",         d:"DNI 27.432.100 (cod.01)", e:"Piel sensible infantil" },
+  ],
+};
+
+// ─── TOGGLE SECTIONS ─────────────────────────────────────
+function toggleSec(id) {
+  const b = document.getElementById(id+'-body');
+  const t = document.getElementById(id+'-tog');
+  const open = b.style.display !== 'none';
+  b.style.display = open ? 'none' : '';
+  t.classList.toggle('open', !open);
+}
+
+// ─── HABILITAR BOTÓN GUARDAR cuando obligatorios completos ──
+const OBLIGATORIOS = ['nombre','tematica','profesor','descripcion','precio','duracion','comision','fecha-desde','enc-fin','enc-abandono'];
+function checkObligatorios() {
+  const completos = OBLIGATORIOS.every(id => {
+    const el = document.getElementById(id);
+    return el && el.value.toString().trim() !== '';
+  });
+  document.getElementById('btn-guardar').disabled = !completos;
+}
+// Escuchar cambios en todos los obligatorios
+window.addEventListener('DOMContentLoaded', () => {
+  OBLIGATORIOS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', checkObligatorios);
+    if (el) el.addEventListener('change', checkObligatorios);
+  });
+});
+
+// ─── TEMATICA → PROFESORES ────────────────────────────────
+function onTematica() {
+  const val = document.getElementById('tematica').value;
+  const sel = document.getElementById('profesor');
+  const sp  = document.getElementById('spinner');
+  document.getElementById('prof-panel').classList.remove('visible');
+  // limpiar selección anterior
+  sel.value = '';
+  clearErr('f-tematica');
+  clearErr('f-profesor');
+  sel.innerHTML = '<option value="">— Cargando... —</option>';
+  sel.disabled = true;
+  sp.style.display = 'inline-block';
+
+  setTimeout(() => {
+    sp.style.display = 'none';
+    sel.innerHTML = '<option value="">— Seleccione un/a profesor/a —</option>';
+    if (val && PROFS[val]) {
+      PROFS[val].forEach(p => {
+        const o = document.createElement('option');
+        o.value = p.v; o.textContent = p.l;
+        sel.appendChild(o);
+      });
+      sel.disabled = false;
+    } else {
+      sel.innerHTML = '<option value="">— Primero seleccione una temática —</option>';
+    }
+    checkObligatorios();
+  }, 380);
+}
+
+function onProfesor() {
+  const t = document.getElementById('tematica').value;
+  const v = document.getElementById('profesor').value;
+  const panel = document.getElementById('prof-panel');
+  clearErr('f-profesor');
+  if (!v || !t) { panel.classList.remove('visible'); checkObligatorios(); return; }
+  const p = (PROFS[t]||[]).find(x => x.v === v);
+  if (!p) { panel.classList.remove('visible'); checkObligatorios(); return; }
+  document.getElementById('p-nombre').textContent = p.n;
+  document.getElementById('p-doc').textContent    = p.d;
+  document.getElementById('p-esp').textContent    = p.e;
+  panel.classList.add('visible');
+  checkObligatorios();
+}
+
+// ─── VIGENCIA ────────────────────────────────────────────
+function recalcVig() {
+  const fi = document.getElementById('fecha-desde').value;
+  const ff = document.getElementById('fecha-hasta').value;
+  const badge = document.getElementById('vig-badge');
+  const text  = document.getElementById('vig-text');
+  const today = new Date().toISOString().slice(0,10);
+  clearErr('f-hasta');
+
+  if (!fi) {
+    badge.className = 'vigencia-badge nd'; text.textContent = 'Sin determinar';
+    checkObligatorios(); return;
+  }
+  // Vigente hasta es opcional, pero si se informa debe ser >= desde
+  if (ff && ff < fi) {
+    badge.className = 'vigencia-badge fin'; text.textContent = 'Fechas inválidas';
+    setErr('f-hasta','La fecha de fin debe ser posterior o igual a Vigente desde.');
+    checkObligatorios(); return;
+  }
+  // Calcular estado
+  if (today < fi)              { badge.className='vigencia-badge prog';    text.textContent='Programado'; }
+  else if (!ff || today <= ff) { badge.className='vigencia-badge vigente'; text.textContent='Vigente'; }
+  else                         { badge.className='vigencia-badge fin';     text.textContent='Finalizado'; }
+  checkObligatorios();
+}
+
+// ─── VALIDATION URL ──────────────────────────────────────
+function isValidUrl(str) {
+  try { new URL(str); return true; } catch { return false; }
+}
+
+// ─── VALIDATION ──────────────────────────────────────────
+function setErr(id, msg) {
+  const el = document.getElementById(id); if(!el) return;
+  el.classList.add('has-error');
+  const vm = el.querySelector('.val-msg'); if(vm && msg) vm.textContent = msg;
+  el.querySelectorAll('input,select,textarea').forEach(i => i.classList.add('error'));
+}
+function clearErr(id) {
+  const el = document.getElementById(id); if(!el) return;
+  el.classList.remove('has-error');
+  el.querySelectorAll('input,select,textarea').forEach(i => i.classList.remove('error'));
+}
+
+function validar() {
+  let ok = true;
+  // campos obligatorios simples
+  const campos = [
+    { fid:'f-nombre',      iid:'nombre',       msg:'El nombre del curso es obligatorio.' },
+    { fid:'f-tematica',    iid:'tematica',      msg:'Debe seleccionar una temática.' },
+    { fid:'f-profesor',    iid:'profesor',      msg:'Debe seleccionar un/a profesor/a responsable.' },
+    { fid:'f-descripcion', iid:'descripcion',   msg:'La descripción es obligatoria.' },
+    { fid:'f-precio',      iid:'precio',        msg:'Ingrese un precio válido (≥ 0).' },
+    { fid:'f-duracion',    iid:'duracion',      msg:'Ingrese la duración estimada.' },
+    { fid:'f-comision',    iid:'comision',      msg:'Ingrese la comisión del profesor.' },
+    { fid:'f-desde',       iid:'fecha-desde',   msg:'La fecha Vigente desde es obligatoria.' },
+    { fid:'f-enc-fin',     iid:'enc-fin',       msg:'Ingrese una URL válida para la encuesta de finalización.' },
+    { fid:'f-enc-abandono',iid:'enc-abandono',  msg:'Ingrese una URL válida para la encuesta de abandono.' },
+  ];
+  campos.forEach(c => {
+    clearErr(c.fid);
+    const el = document.getElementById(c.iid);
+    if (!el || !el.value.toString().trim()) { setErr(c.fid, c.msg); ok = false; }
+  });
+  // precio >= 0
+  const precio = parseFloat(document.getElementById('precio').value);
+  if (!isNaN(precio) && precio < 0) { setErr('f-precio','El precio debe ser mayor o igual a cero.'); ok = false; }
+  // comisión <= 100
+  const com = parseFloat(document.getElementById('comision').value);
+  if (!isNaN(com) && com > 100) { setErr('f-comision','La comisión no puede superar el 100%.'); ok = false; }
+  // fecha hasta >= desde (si se informó)
+  const fd = document.getElementById('fecha-desde').value;
+  const fh = document.getElementById('fecha-hasta').value;
+  if (fd && fh && fh < fd) { setErr('f-hasta','La fecha de fin debe ser posterior o igual a Vigente desde.'); ok = false; }
+  // URLs válidas
+  const urlFin = document.getElementById('enc-fin').value.trim();
+  if (urlFin && !isValidUrl(urlFin)) { setErr('f-enc-fin','El formato de la URL no es válido.'); ok = false; }
+  const urlAb = document.getElementById('enc-abandono').value.trim();
+  if (urlAb && !isValidUrl(urlAb)) { setErr('f-enc-abandono','El formato de la URL no es válido.'); ok = false; }
+  // IDs numéricos 6 posiciones (opcionales, si se informaron)
+  const idOfw = document.getElementById('id-oferta-web').value.trim();
+  if (idOfw && (isNaN(idOfw) || idOfw.length > 6)) { setErr('f-oferta','Debe ser un número de hasta 6 posiciones.'); ok = false; }
+  const idErp = document.getElementById('id-erp').value.trim();
+  if (idErp && (isNaN(idErp) || idErp.length > 6)) { setErr('f-erp','Debe ser un número de hasta 6 posiciones.'); ok = false; }
+  return ok;
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────
+let idCounter = 1000;
+
+function guardarCurso() {
+  if (!validar()) {
+    toast('Revisá los campos marcados en rojo.', false);
+    document.querySelector('.field.has-error')?.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  idCounter++;
+  const nid = String(idCounter).padStart(6, '0');
+  const el = document.getElementById('display-id');
+  el.textContent = nid; el.classList.add('assigned');
+  document.getElementById('btn-guardar').disabled = true;
+  toast('¡Curso ' + nid + ' guardado exitosamente! 🌸', true);
+}
+
+function cancelar() { if (confirm('¿Cancelar el alta y volver al listado?')) toast('Operación cancelada.', true); }
+
+function limpiar() {
+  if (!confirm('¿Limpiar todos los campos? Se perderán los datos no guardados.')) return;
+  document.querySelectorAll('input,select,textarea').forEach(e => { e.value=''; });
+  document.querySelectorAll('.field').forEach(f => f.classList.remove('has-error'));
+  document.querySelectorAll('input,select,textarea').forEach(i => i.classList.remove('error'));
+  document.getElementById('profesor').disabled = true;
+  document.getElementById('profesor').innerHTML = '<option value="">— Primero seleccione una temática —</option>';
+  document.getElementById('prof-panel').classList.remove('visible');
+  document.getElementById('vig-badge').className = 'vigencia-badge nd';
+  document.getElementById('vig-text').textContent = 'Sin determinar';
+  const el = document.getElementById('display-id');
+  el.textContent = '——————'; el.classList.remove('assigned');
+  document.getElementById('btn-guardar').disabled = true;
+  toast('Formulario limpiado. Modo: Alta.', true);
+}
+
+// ─── TOAST ───────────────────────────────────────────────
+let toastT;
+function toast(msg, ok) {
+  const t = document.getElementById('toast');
+  document.getElementById('t-msg').textContent = msg;
+  t.className = 'toast ' + (ok ? 'ok' : 'err');
+  requestAnimationFrame(() => t.classList.add('show'));
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 3400);
+}
+</script>
+</body>
+</html>

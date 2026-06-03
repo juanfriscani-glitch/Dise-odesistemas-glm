@@ -218,13 +218,13 @@
   .section-body {
     padding: 22px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 18px 24px;
   }
-  .section-body.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .section-body.cols-3 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
 
   /* ── FIELDS ── */
-  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
   .field.span-2 { grid-column: span 2; }
   .field.span-3 { grid-column: span 3; }
 
@@ -409,6 +409,26 @@
   }
   .btn-danger:hover { background: #fff5f5; }
 
+  /* ── BTN NUEVA TEMÁTICA ── */
+  .btn-nueva-tematica {
+    height: 38px; width: 38px; flex-shrink: 0;
+    border-radius: 8px;
+    border: 1.5px solid var(--magenta-light);
+    background: var(--magenta-pale);
+    color: var(--magenta);
+    font-size: 20px; font-weight: 700; line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .btn-nueva-tematica:hover {
+    background: var(--magenta); color: #fff;
+    border-color: var(--magenta);
+    box-shadow: 0 4px 12px rgba(233,30,140,0.3);
+  }
+
+  
+
   /* ── TOAST ── */
   .toast {
     position: fixed; bottom: 24px; right: 24px;
@@ -425,11 +445,31 @@
   .toast.show { transform: translateY(0); opacity: 1; }
   .toast.ok  { background: var(--magenta); color: #fff; }
   .toast.err { background: #d32f2f; color: #fff; }
+
+  /* ── MODE BUTTONS ── */
+  #btn-mode-alta, #btn-mode-modif {
+    transition: all 0.15s;
+  }
+  #btn-mode-alta.active {
+    background: var(--magenta) !important;
+    color: #fff !important;
+    border-color: var(--magenta) !important;
+    box-shadow: 0 4px 14px rgba(233,30,140,0.3) !important;
+  }
+  #btn-mode-modif.active {
+    background: var(--magenta) !important;
+    color: #fff !important;
+    border-color: var(--magenta) !important;
+    box-shadow: 0 4px 14px rgba(233,30,140,0.3) !important;
+  }
+  #btn-mode-alta:not(.active):hover, #btn-mode-modif:not(.active):hover {
+    border-color: var(--magenta) !important;
+    color: var(--magenta) !important;
+  }
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-logo">
     <div>
@@ -452,14 +492,12 @@
   </div>
 </div>
 
-<!-- BANNER PILL -->
 <div class="banner-pill">
   <span class="pill-icon">🌸</span>
   <strong>MARLENY · TU GUÍA GLM</strong>
   <span>Panel de administración · Usuario con permiso Alta-ModifCursos</span>
 </div>
 
-<!-- BREADCRUMB -->
 <div class="breadcrumb">
   <a href="#">Inicio</a>
   <span class="breadcrumb-sep">›</span>
@@ -467,39 +505,55 @@
   <span class="breadcrumb-sep">›</span>
   <a href="#">Cursos</a>
   <span class="breadcrumb-sep">›</span>
-  <span class="breadcrumb-current">Alta de curso</span>
+  <span class="breadcrumb-current" id="breadcrumb-current">Alta de curso</span>
 </div>
 
-<!-- PAGE -->
 <div class="page">
 
-  <!-- HEADER -->
+  <div style="background:#fff;border:1px solid #e8e3ef;border-radius:14px;padding:16px 22px;display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+    <span style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#777;white-space:nowrap;flex-shrink:0;">Modo de operación</span>
+    <div style="display:flex;gap:8px;">
+      <button id="btn-mode-alta" onclick="setMode('alta')" style="height:38px;padding:0 22px;border-radius:30px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #E91E8C;background:#E91E8C;color:#fff;box-shadow:0 4px 14px rgba(233,30,140,0.3);">Alta de curso</button>
+      <button id="btn-mode-modif" onclick="setMode('modif')" style="height:38px;padding:0 22px;border-radius:30px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #e8e3ef;background:#fff;color:#444;">Modificación de curso</button>
+    </div>
+  </div>
+
+  <div id="curso-selector-card" style="display:none;background:#fff8f0;border:2px solid #ffcc80;border-radius:12px;padding:18px 22px;margin-bottom:20px;align-items:center;gap:16px;">
+    <div style="font-size:22px;flex-shrink:0;">🔍</div>
+    <div style="flex-shrink:0;">
+      <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#e65100;">Seleccionar curso a modificar</div>
+      <div style="font-size:11px;color:#777;margin-top:2px;">Debe seleccionar un curso para habilitar la edición.</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex:1;">
+      <div style="position:relative;flex:1;max-width:420px;">
+        <select id="select-curso-existente" onchange="onCursoSeleccionado()" style="width:100%;height:38px;padding:0 34px 0 13px;font-family:'Inter',sans-serif;font-size:13px;color:#1a1a1a;background:#fff;border:1.5px solid #e8e3ef;border-radius:8px;outline:none;appearance:none;cursor:pointer;">
+          <option value="">— Seleccione un curso existente —</option>
+          <option value="001001">001001 — Expertos en Dermofarmacia — Cohorte 2025</option>
+          <option value="001002">001002 — Cosmética activa avanzada</option>
+          <option value="001003">001003 — Farmacología tópica aplicada</option>
+          <option value="001004">001004 — Nutrición y salud de la piel</option>
+          <option value="001005">001005 — Dermatología pediátrica esencial</option>
+        </select>
+        <div style="position:absolute;right:13px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #777;pointer-events:none;"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="page-header">
     <div>
       <div class="page-eyebrow">✨ Academia GLM Dermofarmacia</div>
-      <div class="page-title">Alta de <em>curso</em></div>
-      <div class="page-subtitle">Registrá un nuevo curso, vinculándolo con una temática vigente y un profesor responsable.</div>
+      <div class="page-title" id="page-title">Alta de <em>curso</em></div>
+      <div class="page-subtitle" id="page-subtitle">Registrá un nuevo curso, vinculándolo con una temática vigente y un profesor responsable.</div>
     </div>
-    <!-- Encabezado: Modo de operación + ID Curso -->
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
-      <div class="id-badge">
-        <div class="id-badge-label">Modo de operación</div>
-        <div class="id-badge-value" style="font-size:14px;color:var(--magenta);letter-spacing:0;">Alta</div>
-        <div class="id-badge-note">No editable · calculado por el sistema</div>
-      </div>
-      <div class="id-badge">
-        <div class="id-badge-label">ID Curso</div>
-        <div class="id-badge-value" id="display-id">——————</div>
-        <div class="id-badge-note">Autoincremental · asignado al guardar</div>
-      </div>
+    <div class="id-badge">
+      <div class="id-badge-label">ID Curso</div>
+      <div class="id-badge-value" id="display-id">——————</div>
+      <div class="id-badge-note">Autoincremental · asignado al guardar</div>
     </div>
   </div>
 
   <div class="req-legend"><span class="ast">*</span> Campo obligatorio</div>
 
-  <!-- ══════════════════════════════════════
-       SECCIÓN 1 · DATOS BÁSICOS
-  ══════════════════════════════════════ -->
   <div class="section-card" id="sec1">
     <div class="section-header" onclick="toggleSec('sec1')">
       <div class="section-num-pill">1</div>
@@ -508,32 +562,32 @@
     </div>
     <div class="section-body" id="sec1-body">
 
-      <!-- Nombre -->
       <div class="field span-2" id="f-nombre">
         <label>Nombre del curso <span class="ast">*</span></label>
-        <input type="text" id="nombre" placeholder="Ej: Expertos en Dermofarmacia — Cohorte 2025" maxlength="100">
+        <input type="text" id="nombre" placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9" maxlength="100">
         <div class="field-hint">Alfanumérico. Máximo 100 caracteres.</div>
         <div class="val-msg">El nombre del curso es obligatorio.</div>
       </div>
 
-      <!-- Temática -->
       <div class="field" id="f-tematica">
         <label>Temática <span class="ast">*</span></label>
-        <div class="select-wrapper">
-          <select id="tematica" onchange="onTematica()">
-            <option value="">— Seleccione una temática —</option>
-            <option value="DER">DER — Dermatología clínica</option>
-            <option value="COS">COS — Cosmética y cuidado facial</option>
-            <option value="FAR">FAR — Farmacología dermatológica</option>
-            <option value="NUT">NUT — Nutrición y piel</option>
-            <option value="PED">PED — Dermatología pediátrica</option>
-          </select>
+        <div class="inline-group" style="align-items:stretch;">
+          <div class="select-wrapper" style="flex:1;">
+            <select id="tematica" onchange="onTematica()">
+              <option value="">— Seleccione una temática —</option>
+              <option value="DER">DER — Dermatología clínica</option>
+              <option value="COS">COS — Cosmética y cuidado facial</option>
+              <option value="FAR">FAR — Farmacología dermatológica</option>
+              <option value="NUT">NUT — Nutrición y piel</option>
+              <option value="PED">PED — Dermatología pediátrica</option>
+            </select>
+          </div>
+          <button type="button" class="btn-nueva-tematica" onclick="nuevaTematica()" title="Alta de nueva temática">+</button>
         </div>
-        <div class="field-hint">Solo temáticas vigentes. Al cambiar, actualiza y limpia el profesor.</div>
+        <div class="field-hint">Solo temáticas vigentes. Al cambiar, actualiza y limpia el profesor. Usá <strong>+</strong> para dar de alta una nueva temática.</div>
         <div class="val-msg">Debe seleccionar una temática.</div>
       </div>
 
-      <!-- Profesor -->
       <div class="field" id="f-profesor">
         <label>
           Profesor/a responsable <span class="ast">*</span>
@@ -548,7 +602,6 @@
         <div class="val-msg">Debe seleccionar un/a profesor/a responsable.</div>
       </div>
 
-      <!-- Panel datos profesor -->
       <div class="prof-panel" id="prof-panel">
         <div class="prof-panel-title">Datos del profesor seleccionado</div>
         <div class="prof-grid">
@@ -559,10 +612,9 @@
         </div>
       </div>
 
-      <!-- Descripción -->
       <div class="field span-2" id="f-descripcion">
         <label>Descripción <span class="ast">*</span></label>
-        <textarea id="descripcion" placeholder="Descripción del curso (contenido, objetivos, destinatarios)..." maxlength="500"></textarea>
+        <textarea id="descripcion" placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9" maxlength="500"></textarea>
         <div class="field-hint">Obligatorio. Alfanumérico. Máximo 500 caracteres.</div>
         <div class="val-msg">La descripción es obligatoria.</div>
       </div>
@@ -570,9 +622,6 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SECCIÓN 2 · VALORES Y VIGENCIA
-  ══════════════════════════════════════ -->
   <div class="section-card" id="sec2">
     <div class="section-header" onclick="toggleSec('sec2')">
       <div class="section-num-pill">2</div>
@@ -581,7 +630,6 @@
     </div>
     <div class="section-body cols-3" id="sec2-body">
 
-      <!-- Precio -->
       <div class="field" id="f-precio">
         <label>Precio (ARS) <span class="ast">*</span></label>
         <div class="inline-group">
@@ -592,7 +640,6 @@
         <div class="val-msg">Ingrese un precio válido (mayor o igual a 0).</div>
       </div>
 
-      <!-- Duración estimada -->
       <div class="field" id="f-duracion">
         <label>Duración estimada (hs) <span class="ast">*</span></label>
         <div class="inline-group">
@@ -603,18 +650,16 @@
         <div class="val-msg">Ingrese la duración estimada.</div>
       </div>
 
-      <!-- Comisión profesor -->
       <div class="field" id="f-comision">
         <label>Comisión profesor (%) <span class="ast">*</span></label>
         <div class="inline-group">
-          <input type="number" id="comision" placeholder="0,00" min="0" max="100" step="0.01">
+          <input type="number" id="comision" placeholder="X9X9X" min="0" max="100" step="0.01">
           <span class="prefix">%</span>
         </div>
         <div class="field-hint">Numérico. Formato %999,99. No debe superar 100,00.</div>
         <div class="val-msg">Ingrese la comisión del profesor (máx. 100).</div>
       </div>
 
-      <!-- Vigente desde -->
       <div class="field" id="f-desde">
         <label>Vigente desde <span class="ast">*</span></label>
         <input type="date" id="fecha-desde" onchange="recalcVig()">
@@ -622,7 +667,6 @@
         <div class="val-msg">La fecha de inicio de vigencia es obligatoria.</div>
       </div>
 
-      <!-- Vigente hasta -->
       <div class="field" id="f-hasta">
         <label>Vigente hasta</label>
         <input type="date" id="fecha-hasta" onchange="recalcVig()">
@@ -630,22 +674,9 @@
         <div class="val-msg">La fecha de fin debe ser posterior o igual a Vigente desde.</div>
       </div>
 
-      <!-- Estado de vigencia (calculado) -->
-      <div class="field">
-        <label>Estado de vigencia</label>
-        <div class="vigencia-badge nd" id="vig-badge">
-          <span class="vigencia-dot"></span>
-          <span id="vig-text">Sin determinar</span>
-        </div>
-        <div class="field-hint">Calculado por el sistema. No se almacena.</div>
-      </div>
-
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SECCIÓN 3 · INTEGRACIONES Y ENCUESTAS
-  ══════════════════════════════════════ -->
   <div class="section-card" id="sec3">
     <div class="section-header" onclick="toggleSec('sec3')">
       <div class="section-num-pill">3</div>
@@ -654,47 +685,36 @@
     </div>
     <div class="section-body cols-2" id="sec3-body">
 
-      <!-- Encuesta finalización -->
       <div class="field" id="f-enc-fin">
         <label>Encuesta de finalización <span class="ast">*</span></label>
-        <input type="text" id="enc-fin" placeholder="https://…" maxlength="255">
-        <div class="field-hint">Obligatorio. Hipervínculo. Máximo 255 caracteres.</div>
+        <input type="text" id="enc-fin" readonly placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X" maxlength="255">
+        <div class="field-hint">Calculada por el sistema. Solo lectura. Máximo 255 caracteres.</div>
         <div class="val-msg">Ingrese una URL válida para la encuesta de finalización.</div>
       </div>
 
-      <!-- Encuesta abandono -->
       <div class="field" id="f-enc-abandono">
         <label>Encuesta de abandono <span class="ast">*</span></label>
-        <input type="text" id="enc-abandono" placeholder="https://…" maxlength="255">
-        <div class="field-hint">Obligatorio. Hipervínculo. Máximo 255 caracteres.</div>
+        <input type="text" id="enc-abandono" readonly placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X" maxlength="255">
+        <div class="field-hint">Calculada por el sistema. Solo lectura. Máximo 255 caracteres.</div>
         <div class="val-msg">Ingrese una URL válida para la encuesta de abandono.</div>
       </div>
 
-      <!-- ID Oferta Web -->
       <div class="field" id="f-oferta">
         <label>ID oferta web</label>
-        <input type="number" id="id-oferta-web" placeholder="000000" min="0" max="999999">
-        <div class="field-hint">Opcional. Numérico, 6 posiciones. Debe ser único por curso.</div>
+        <input type="number" id="id-oferta-web" placeholder="X9X9X9" readonly>
+        <div class="field-hint">Recuperado por el sistema al sincronizar con la web. Solo lectura.</div>
         <div class="val-msg">El ID oferta web debe ser un número de hasta 6 posiciones.</div>
       </div>
 
-      <!-- ID Artículo ERP -->
       <div class="field" id="f-erp">
         <label>ID artículo ERP</label>
-        <input type="number" id="id-erp" placeholder="000000" min="0" max="999999">
-        <div class="field-hint">Opcional. Numérico, 6 posiciones. Puede repetirse entre cursos.</div>
+        <input type="number" id="id-erp" placeholder="X9X9X9" readonly>
+        <div class="field-hint">Recuperado por el sistema al sincronizar con el ERP. Solo lectura.</div>
         <div class="val-msg">El ID artículo ERP debe ser un número de hasta 6 posiciones.</div>
       </div>
-
-      <div class="info-box" style="grid-column:span 2;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Los IDs de oferta web y artículo ERP pueden ser informados por el usuario o recuperados automáticamente por el sistema al sincronizar con la web o el ERP. El sistema capturará internamente CodTipoDocProf y NumDocProf del profesor seleccionado.
-      </div>
-
     </div>
   </div>
 
-  <!-- ACTION BAR -->
   <div class="action-bar">
     <div class="action-left">
       <button class="btn btn-danger" onclick="limpiar()">
@@ -706,20 +726,198 @@
       <button class="btn btn-outline" onclick="cancelar()">Cancelar</button>
       <button class="btn btn-primary" id="btn-guardar" onclick="guardarCurso()" disabled>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-        Guardar curso
+        <span id="btn-guardar-label">Guardar curso</span>
       </button>
     </div>
   </div>
 
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast">
   <svg id="t-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
   <span id="t-msg"></span>
 </div>
 
 <script>
+
+// ─── MOCK CURSOS ─────────────────────────────────────────
+const CURSOS_MOCK = {
+  '001001': { nombre:'Expertos en Dermofarmacia — Cohorte 2025', tematica:'DER', profesor:'P001', descripcion:'Curso avanzado de dermofarmacia clínica orientado a profesionales del sector.', precio:'45000', duracion:'24', comision:'15', desde:'2025-03-01', hasta:'2025-12-31' },
+  '001002': { nombre:'Cosmética activa avanzada', tematica:'COS', profesor:'P003', descripcion:'Formulación y aplicación de activos cosméticos para uso profesional.', precio:'32000', duracion:'16', comision:'12', desde:'2025-04-15', hasta:'' },
+  '001003': { nombre:'Farmacología tópica aplicada', tematica:'FAR', profesor:'P005', descripcion:'Principios de farmacología aplicados a tratamientos tópicos dermatológicos.', precio:'38000', duracion:'20', comision:'14', desde:'2025-05-01', hasta:'2025-11-30' },
+  '001004': { nombre:'Nutrición y salud de la piel', tematica:'NUT', profesor:'P006', descripcion:'Relación entre nutrición, microbioma y salud cutánea.', precio:'28000', duracion:'12', comision:'10', desde:'2025-06-01', hasta:'' },
+  '001005': { nombre:'Dermatología pediátrica esencial', tematica:'PED', profesor:'P007', descripcion:'Afecciones cutáneas en niños. Diagnóstico y tratamiento.', precio:'35000', duracion:'18', comision:'13', desde:'2025-07-01', hasta:'2026-06-30' },
+};
+
+// ─── MODO ─────────────────────────────────────────────────
+let currentMode = 'alta';
+let cursoSeleccionado = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  cursoSeleccionado = false;
+
+  document.getElementById('btn-mode-alta').className = mode === 'alta' ? 'active' : '';
+  document.getElementById('btn-mode-modif').className = mode === 'modif' ? 'active' : '';
+  // Re-apply inline styles
+  if (mode === 'alta') {
+    document.getElementById('btn-mode-alta').style.cssText = 'height:38px;padding:0 22px;border-radius:30px;font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #E91E8C;background:#E91E8C;color:#fff;box-shadow:0 4px 14px rgba(233,30,140,0.3);';
+    document.getElementById('btn-mode-modif').style.cssText = 'height:38px;padding:0 22px;border-radius:30px;font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #e8e3ef;background:#fff;color:#444;';
+  } else {
+    document.getElementById('btn-mode-modif').style.cssText = 'height:38px;padding:0 22px;border-radius:30px;font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #E91E8C;background:#E91E8C;color:#fff;box-shadow:0 4px 14px rgba(233,30,140,0.3);';
+    document.getElementById('btn-mode-alta').style.cssText = 'height:38px;padding:0 22px;border-radius:30px;font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #e8e3ef;background:#fff;color:#444;';
+  }
+
+  // Breadcrumb
+  document.getElementById('breadcrumb-current').textContent = mode === 'alta' ? 'Alta de curso' : 'Modificación de curso';
+
+  // Title
+  document.getElementById('page-title').innerHTML = mode === 'alta' ? 'Alta de <em>curso</em>' : 'Modificación de <em>curso</em>';
+  document.getElementById('page-subtitle').textContent = mode === 'alta'
+    ? 'Registrá un nuevo curso, vinculándolo con una temática vigente y un profesor responsable.'
+    : 'Seleccioná un curso existente y modificá los campos habilitados.';
+
+  // Guardar label
+  document.getElementById('btn-guardar-label').textContent = mode === 'alta' ? 'Guardar curso' : 'Guardar cambios';
+
+  // Selector curso
+  const card = document.getElementById('curso-selector-card');
+  card.style.display = mode === 'modif' ? 'flex' : 'none';
+  if (mode === 'modif') {
+    document.getElementById('select-curso-existente').value = '';
+  }
+
+  // ID display
+  const el = document.getElementById('display-id');
+  el.textContent = '——————'; el.classList.remove('assigned');
+
+  // Reset form
+  resetFormFields();
+  applyRestrictions();
+}
+
+function resetFormFields() {
+  ['nombre','descripcion','precio','duracion','comision','fecha-desde','fecha-hasta'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('.field').forEach(f => f.classList.remove('has-error'));
+  document.querySelectorAll('input,select,textarea').forEach(i => i.classList.remove('error'));
+  document.getElementById('tematica').value = '';
+  document.getElementById('profesor').disabled = true;
+  document.getElementById('profesor').innerHTML = '<option value="">— Primero seleccione una temática —</option>';
+  document.getElementById('prof-panel').classList.remove('visible');
+  document.getElementById('btn-guardar').disabled = true;
+}
+
+function applyRestrictions() {
+  const isModif = currentMode === 'modif';
+  const hasCurso = cursoSeleccionado;
+
+  const setRO = (id, ro) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'SELECT') el.disabled = ro;
+    else el.readOnly = ro;
+  };
+
+  // Nombre: editable en alta y en modif con curso
+  setRO('nombre', isModif && !hasCurso);
+
+  // Tematica: solo en alta
+  setRO('tematica', isModif);
+  const btnTem = document.getElementById('btn-nueva-tematica');
+  if (btnTem) btnTem.style.display = isModif ? 'none' : '';
+
+  // Profesor: solo en alta
+  if (!isModif) {
+    // en alta ya se maneja por onTematica
+  } else {
+    document.getElementById('profesor').disabled = true;
+  }
+
+  // Descripcion: editable en alta y en modif con curso
+  setRO('descripcion', isModif && !hasCurso);
+
+  // Precio: editable en alta y en modif con curso
+  setRO('precio', isModif && !hasCurso);
+
+  // Duracion: editable en alta y en modif con curso
+  setRO('duracion', isModif && !hasCurso);
+
+  // Comision: editable en alta y en modif con curso
+  setRO('comision', isModif && !hasCurso);
+
+  // Vigente desde: solo en alta (en modif no modificable)
+  setRO('fecha-desde', isModif);
+
+  // Vigente hasta: editable en alta y en modif con curso
+  setRO('fecha-hasta', isModif && !hasCurso);
+
+  // Encuestas: siempre readonly
+  document.getElementById('enc-fin').readOnly = true;
+  document.getElementById('enc-abandono').readOnly = true;
+  document.getElementById('id-oferta-web').readOnly = true;
+  document.getElementById('id-erp').readOnly = true;
+
+  if (isModif && !hasCurso) {
+    document.getElementById('btn-guardar').disabled = true;
+  } else {
+    checkObligatorios();
+  }
+}
+
+function onCursoSeleccionado() {
+  const id = document.getElementById('select-curso-existente').value;
+  if (!id) {
+    cursoSeleccionado = false;
+    resetFormFields();
+    applyRestrictions();
+    return;
+  }
+  const c = CURSOS_MOCK[id];
+  if (!c) return;
+  cursoSeleccionado = true;
+
+  document.getElementById('nombre').value = c.nombre;
+  document.getElementById('descripcion').value = c.descripcion;
+  document.getElementById('precio').value = c.precio;
+  document.getElementById('duracion').value = c.duracion;
+  document.getElementById('comision').value = c.comision;
+  document.getElementById('fecha-desde').value = c.desde;
+  document.getElementById('fecha-hasta').value = c.hasta;
+
+  // Tematica (readonly, visual)
+  document.getElementById('tematica').value = c.tematica;
+
+  // Profesor (readonly, visual) — populate select
+  const profSel = document.getElementById('profesor');
+  profSel.innerHTML = '';
+  (PROFS[c.tematica]||[]).forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.v; o.textContent = p.l;
+    profSel.appendChild(o);
+  });
+  profSel.value = c.profesor;
+
+  // Show profesor panel
+  const pData = (PROFS[c.tematica]||[]).find(x => x.v === c.profesor);
+  if (pData) {
+    document.getElementById('p-nombre').textContent = pData.n;
+    document.getElementById('p-doc').textContent    = pData.d;
+    document.getElementById('p-esp').textContent    = pData.e;
+    document.getElementById('prof-panel').classList.add('visible');
+  }
+
+  // ID display
+  const el = document.getElementById('display-id');
+  el.textContent = id; el.classList.add('assigned');
+
+  recalcVig();
+  applyRestrictions();
+  toast('Curso ' + id + ' cargado. Podés modificar los campos habilitados. 🌸', true);
+}
+
 // ─── DATA MOCK ───────────────────────────────────────────
 const PROFS = {
   DER: [
@@ -742,6 +940,22 @@ const PROFS = {
   ],
 };
 
+// ─── NUEVA TEMÁTICA ──────────────────────────────────────
+function nuevaTematica() {
+  const nombre = prompt('Alta de Nueva Temática\n\nIngresá el nombre de la nueva temática:');
+  if (!nombre || !nombre.trim()) return;
+  const codigo = nombre.trim().substring(0,3).toUpperCase();
+  const sel = document.getElementById('tematica');
+  const opt = document.createElement('option');
+  opt.value = codigo; opt.textContent = codigo + ' — ' + nombre.trim();
+  sel.appendChild(opt);
+  sel.value = codigo;
+  onTematica();
+  toast('Temática "' + nombre.trim() + '" dada de alta y seleccionada. 🌸', true);
+}
+
+
+
 // ─── TOGGLE SECTIONS ─────────────────────────────────────
 function toggleSec(id) {
   const b = document.getElementById(id+'-body');
@@ -752,9 +966,14 @@ function toggleSec(id) {
 }
 
 // ─── HABILITAR BOTÓN GUARDAR cuando obligatorios completos ──
-const OBLIGATORIOS = ['nombre','tematica','profesor','descripcion','precio','duracion','comision','fecha-desde','enc-fin','enc-abandono'];
 function checkObligatorios() {
-  const completos = OBLIGATORIOS.every(id => {
+  if (currentMode === 'modif' && !cursoSeleccionado) {
+    document.getElementById('btn-guardar').disabled = true; return;
+  }
+  const OBLIG = currentMode === 'alta'
+    ? ['nombre','tematica','profesor','descripcion','precio','duracion','comision','fecha-desde']
+    : ['nombre','descripcion','precio','duracion','comision'];
+  const completos = OBLIG.every(id => {
     const el = document.getElementById(id);
     return el && el.value.toString().trim() !== '';
   });
@@ -762,7 +981,7 @@ function checkObligatorios() {
 }
 // Escuchar cambios en todos los obligatorios
 window.addEventListener('DOMContentLoaded', () => {
-  OBLIGATORIOS.forEach(id => {
+  ['nombre','tematica','profesor','descripcion','precio','duracion','comision','fecha-desde','fecha-hasta'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', checkObligatorios);
     if (el) el.addEventListener('change', checkObligatorios);
@@ -819,25 +1038,10 @@ function onProfesor() {
 function recalcVig() {
   const fi = document.getElementById('fecha-desde').value;
   const ff = document.getElementById('fecha-hasta').value;
-  const badge = document.getElementById('vig-badge');
-  const text  = document.getElementById('vig-text');
-  const today = new Date().toISOString().slice(0,10);
   clearErr('f-hasta');
-
-  if (!fi) {
-    badge.className = 'vigencia-badge nd'; text.textContent = 'Sin determinar';
-    checkObligatorios(); return;
-  }
-  // Vigente hasta es opcional, pero si se informa debe ser >= desde
-  if (ff && ff < fi) {
-    badge.className = 'vigencia-badge fin'; text.textContent = 'Fechas inválidas';
+  if (ff && fi && ff < fi) {
     setErr('f-hasta','La fecha de fin debe ser posterior o igual a Vigente desde.');
-    checkObligatorios(); return;
   }
-  // Calcular estado
-  if (today < fi)              { badge.className='vigencia-badge prog';    text.textContent='Programado'; }
-  else if (!ff || today <= ff) { badge.className='vigencia-badge vigente'; text.textContent='Vigente'; }
-  else                         { badge.className='vigencia-badge fin';     text.textContent='Finalizado'; }
   checkObligatorios();
 }
 
@@ -862,7 +1066,7 @@ function clearErr(id) {
 function validar() {
   let ok = true;
   // campos obligatorios simples
-  const campos = [
+  const campos = currentMode === 'alta' ? [
     { fid:'f-nombre',      iid:'nombre',       msg:'El nombre del curso es obligatorio.' },
     { fid:'f-tematica',    iid:'tematica',      msg:'Debe seleccionar una temática.' },
     { fid:'f-profesor',    iid:'profesor',      msg:'Debe seleccionar un/a profesor/a responsable.' },
@@ -871,8 +1075,12 @@ function validar() {
     { fid:'f-duracion',    iid:'duracion',      msg:'Ingrese la duración estimada.' },
     { fid:'f-comision',    iid:'comision',      msg:'Ingrese la comisión del profesor.' },
     { fid:'f-desde',       iid:'fecha-desde',   msg:'La fecha Vigente desde es obligatoria.' },
-    { fid:'f-enc-fin',     iid:'enc-fin',       msg:'Ingrese una URL válida para la encuesta de finalización.' },
-    { fid:'f-enc-abandono',iid:'enc-abandono',  msg:'Ingrese una URL válida para la encuesta de abandono.' },
+  ] : [
+    { fid:'f-nombre',      iid:'nombre',       msg:'El nombre del curso es obligatorio.' },
+    { fid:'f-descripcion', iid:'descripcion',   msg:'La descripción es obligatoria.' },
+    { fid:'f-precio',      iid:'precio',        msg:'Ingrese un precio válido (≥ 0).' },
+    { fid:'f-duracion',    iid:'duracion',      msg:'Ingrese la duración estimada.' },
+    { fid:'f-comision',    iid:'comision',      msg:'Ingrese la comisión del profesor.' },
   ];
   campos.forEach(c => {
     clearErr(c.fid);
@@ -889,11 +1097,6 @@ function validar() {
   const fd = document.getElementById('fecha-desde').value;
   const fh = document.getElementById('fecha-hasta').value;
   if (fd && fh && fh < fd) { setErr('f-hasta','La fecha de fin debe ser posterior o igual a Vigente desde.'); ok = false; }
-  // URLs válidas
-  const urlFin = document.getElementById('enc-fin').value.trim();
-  if (urlFin && !isValidUrl(urlFin)) { setErr('f-enc-fin','El formato de la URL no es válido.'); ok = false; }
-  const urlAb = document.getElementById('enc-abandono').value.trim();
-  if (urlAb && !isValidUrl(urlAb)) { setErr('f-enc-abandono','El formato de la URL no es válido.'); ok = false; }
   // IDs numéricos 6 posiciones (opcionales, si se informaron)
   const idOfw = document.getElementById('id-oferta-web').value.trim();
   if (idOfw && (isNaN(idOfw) || idOfw.length > 6)) { setErr('f-oferta','Debe ser un número de hasta 6 posiciones.'); ok = false; }
@@ -911,30 +1114,28 @@ function guardarCurso() {
     document.querySelector('.field.has-error')?.scrollIntoView({ behavior:'smooth', block:'center' });
     return;
   }
-  idCounter++;
-  const nid = String(idCounter).padStart(6, '0');
-  const el = document.getElementById('display-id');
-  el.textContent = nid; el.classList.add('assigned');
-  document.getElementById('btn-guardar').disabled = true;
-  toast('¡Curso ' + nid + ' guardado exitosamente! 🌸', true);
+  if (currentMode === 'alta') {
+    idCounter++;
+    const nid = String(idCounter).padStart(6, '0');
+    const el = document.getElementById('display-id');
+    el.textContent = nid; el.classList.add('assigned');
+    document.getElementById('btn-guardar').disabled = true;
+    toast('¡Curso ' + nid + ' guardado exitosamente! 🌸', true);
+  } else {
+    const id = document.getElementById('select-curso-existente').value;
+    document.getElementById('btn-guardar').disabled = true;
+    toast('¡Cambios del curso ' + id + ' guardados exitosamente! 🌸', true);
+  }
 }
 
 function cancelar() { if (confirm('¿Cancelar el alta y volver al listado?')) toast('Operación cancelada.', true); }
 
 function limpiar() {
   if (!confirm('¿Limpiar todos los campos? Se perderán los datos no guardados.')) return;
-  document.querySelectorAll('input,select,textarea').forEach(e => { e.value=''; });
-  document.querySelectorAll('.field').forEach(f => f.classList.remove('has-error'));
-  document.querySelectorAll('input,select,textarea').forEach(i => i.classList.remove('error'));
-  document.getElementById('profesor').disabled = true;
-  document.getElementById('profesor').innerHTML = '<option value="">— Primero seleccione una temática —</option>';
-  document.getElementById('prof-panel').classList.remove('visible');
-  document.getElementById('vig-badge').className = 'vigencia-badge nd';
-  document.getElementById('vig-text').textContent = 'Sin determinar';
-  const el = document.getElementById('display-id');
-  el.textContent = '——————'; el.classList.remove('assigned');
-  document.getElementById('btn-guardar').disabled = true;
-  toast('Formulario limpiado. Modo: Alta.', true);
+  if (currentMode === 'modif') { document.getElementById('select-curso-existente').value=''; cursoSeleccionado=false; }
+  resetFormFields();
+  applyRestrictions();
+  toast('Formulario limpiado.', true);
 }
 
 // ─── TOAST ───────────────────────────────────────────────

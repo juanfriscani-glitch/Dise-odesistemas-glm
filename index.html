@@ -1,40 +1,329 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=1366">
-<title>Alta de Curso — GLM Dermofarmacia</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --magenta:       #E91E8C;
-    --magenta-hover: #C8187A;
-    --magenta-light: #fce4f3;
-    --magenta-pale:  #fdf0f8;
-    --dark:          #1a1a1a;
-    --gray-dark:     #444;
-    --gray-mid:      #777;
-    --gray-light:    #bbb;
-    --border:        #e8e3ef;
-    --bg:            #ffffff;
-    --bg-page:       #fafafa;
-    --bg-section:    #ffffff;
-    --error:         #d32f2f;
-    --success:       #2e7d32;
-    --pink-bg:       linear-gradient(135deg, #fff 0%, #fce8f5 100%);
-  }
+  <meta charset="UTF-8">
+  <title>Gestión de Cursos - Sistema de Administración</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --magenta: #E91E8C;
+      --magenta-light: #F48FB1;
+      --magenta-pale: #FCE4EC;
+      --slate-dark: #2C3E50;
+      --slate-light: #95A5A6;
+      --bg-global: #F9FAFC;
+      --border-color: #E2E8F0;
+    }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg-page);
-    color: var(--dark);
-    font-size: 13px;
-    min-height: 100vh;
-  }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg-global);
+      color: var(--slate-dark);
+      padding: 30px;
+      font-size: 13px;
+    }
 
-  /* ── TOPBAR ── */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* Header y Navegación */
+    .header-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .breadcrumbs {
+      color: var(--slate-light);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .breadcrumbs strong {
+      color: var(--magenta);
+    }
+
+    .mode-selector {
+      display: flex;
+      background: #fff;
+      padding: 4px;
+      border-radius: 30px;
+      border: 1px solid var(--border-color);
+    }
+
+    .mode-selector button {
+      border: none;
+      background: none;
+      padding: 8px 20px;
+      border-radius: 25px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--slate-light);
+    }
+
+    .mode-selector button.active {
+      background: var(--magenta);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(233, 30, 140, 0.2);
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: 25px;
+    }
+
+    h1 em {
+      font-style: normal;
+      font-weight: 700;
+      color: var(--magenta);
+    }
+
+    /* Tarjeta de Selector de Cursos (Modificación) */
+    .selector-card {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    /* Secciones del Formulario */
+    .section-card {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      overflow: hidden;
+    }
+
+    .section-header {
+      background: #FFF;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-color);
+      user-select: none;
+    }
+
+    .section-num-pill {
+      background: var(--magenta-pale);
+      color: var(--magenta);
+      width: 24px;
+      height: 24px;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 11px;
+      margin-right: 12px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .section-toggle {
+      font-size: 16px;
+      color: var(--slate-light);
+    }
+
+    .section-body {
+      padding: 25px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 25px;
+    }
+
+    /* Campos de Formulario */
+    .field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field.span-2 {
+      grid-column: span 2;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--slate-dark);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ast {
+      color: var(--magenta);
+    }
+
+    input[type="text"], input[type="date"], input[type="number"], textarea, select {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      color: var(--slate-dark);
+      background-color: #fff;
+      transition: border-color 0.15s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--magenta-light);
+    }
+
+    textarea {
+      height: 90px;
+      padding: 10px 12px;
+      resize: none;
+    }
+
+    input:disabled, select:disabled, textarea:disabled {
+      background-color: #F8FAFC;
+      color: var(--slate-light);
+      cursor: not-allowed;
+    }
+
+    .field-hint {
+      font-size: 10.5px;
+      color: var(--slate-light);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    .val-msg {
+      color: var(--magenta);
+      font-size: 11px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    /* Nuevas clases para marcar los errores dinámicamente */
+    .field.error input, 
+    .field.error textarea, 
+    .field.error select {
+      border-color: var(--magenta) !important;
+      background-color: #FFF5F5;
+    }
+    .field.error .val-msg {
+      display: block;
+    }
+
+    /* Componentes Especiales de los Inputs */
+    .inline-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .select-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .btn-nueva-tematica {
+      width: 40px;
+      height: 40px;
+      background: var(--magenta);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: 400;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .btn-nueva-tematica:hover:not(:disabled) {
+      background: #d01477;
+    }
+
+    .btn-nueva-tematica:disabled {
+      background: var(--border-color);
+      color: var(--slate-light);
+      cursor: not-allowed;
+    }
+
+    /* Botonera de Acciones */
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 10px;
+      padding-bottom: 50px;
+    }
+
+    .btn {
+      height: 42px;
+      padding: 0 24px;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--magenta);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(233, 30, 140, 0.25);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #d01477;
+    }
+
+    .btn-primary:disabled {
+      background: var(--border-color);
+      color: var(--slate-light);
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      color: var(--slate-dark);
+    }
+
+    .btn-secondary:hover {
+      background: #F8FAFC;
+    }
+
+      /* ── TOPBAR ── */
   .topbar {
     background: #fff;
     border-bottom: 1px solid var(--border);
@@ -223,250 +512,20 @@
   }
   .section-body.cols-3 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
 
-  /* ── FIELDS ── */
-  .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-  .field.span-2 { grid-column: span 2; }
-  .field.span-3 { grid-column: span 3; }
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--magenta-light);
+      border-top-color: var(--magenta);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
 
-  .field label {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 10px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--gray-dark);
-    display: flex; align-items: center; gap: 3px;
-  }
-  .field label .ast { color: var(--magenta); font-size: 13px; }
-  .field-hint { font-size: 10px; color: var(--gray-light); font-style: italic; }
-
-  input[type="text"],
-  input[type="number"],
-  input[type="date"],
-  select,
-  textarea {
-    width: 100%; height: 38px;
-    padding: 0 13px;
-    font-family: 'Inter', sans-serif;
-    font-size: 13px; color: var(--dark);
-    background: #fff;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    appearance: none;
-  }
-  textarea { height: 72px; padding: 10px 13px; resize: vertical; line-height: 1.5; }
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--magenta);
-    box-shadow: 0 0 0 3px rgba(233,30,140,0.1);
-  }
-  input[readonly], input[disabled], select[disabled] {
-    background: #f7f5f9; color: var(--gray-mid);
-    cursor: not-allowed;
-  }
-  input.error, select.error { border-color: var(--error); }
-
-  .select-wrapper { position: relative; }
-  .select-wrapper select { padding-right: 34px; cursor: pointer; }
-  .select-wrapper::after {
-    content: '';
-    position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
-    width: 0; height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 5px solid var(--gray-mid);
-    pointer-events: none;
-  }
-
-  .inline-group { display: flex; gap: 8px; align-items: stretch; }
-  .inline-group input { flex: 1; }
-  .prefix {
-    height: 38px; padding: 0 10px;
-    background: #f7f5f9; border: 1.5px solid var(--border);
-    border-radius: 8px; display: flex; align-items: center;
-    font-size: 13px; color: var(--gray-mid); white-space: nowrap;
-    font-weight: 500;
-  }
-
-  /* ── VIGENCIA BADGE ── */
-  .vigencia-badge {
-    height: 38px; padding: 0 14px;
-    border-radius: 8px; display: inline-flex; align-items: center; gap: 7px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
-  }
-  .vigencia-badge.nd    { background: #f5f5f5; color: var(--gray-mid); border: 1.5px solid #e0e0e0; }
-  .vigencia-badge.vigente { background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; }
-  .vigencia-badge.prog  { background: #fff8e1; color: #e65100; border: 1.5px solid #ffcc80; }
-  .vigencia-badge.fin   { background: #fce4ec; color: #c62828; border: 1.5px solid #f48fb1; }
-  .vigencia-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-
-  /* ── CHECKBOX ── */
-  .check-row {
-    display: flex; align-items: center; gap: 9px;
-    height: 38px; padding: 0 13px;
-    border: 1.5px solid var(--border); border-radius: 8px;
-    background: #fff; cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .check-row:hover { border-color: var(--magenta); background: var(--magenta-pale); }
-  .check-row input[type="checkbox"] {
-    width: 15px; height: 15px;
-    accent-color: var(--magenta);
-    cursor: pointer; flex-shrink: 0;
-    padding: 0; margin: 0; border: none;
-  }
-  .check-row span { font-size: 12px; color: var(--dark); }
-
-  /* ── PROF PANEL ── */
-  .prof-panel {
-    grid-column: span 2;
-    background: var(--magenta-pale);
-    border: 1.5px solid var(--magenta-light);
-    border-radius: 10px;
-    padding: 14px 16px;
-    display: none;
-  }
-  .prof-panel.visible { display: block; }
-  .prof-panel-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 9px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 0.12em;
-    color: var(--magenta); margin-bottom: 10px;
-  }
-  .prof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .prof-item label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray-mid); font-weight: 600; display: block; margin-bottom: 2px; }
-  .prof-item span { font-size: 12px; color: var(--dark); font-weight: 500; }
-
-  /* ── INFO BOX ── */
-  .info-box {
-    grid-column: span 3;
-    display: flex; gap: 10px;
-    padding: 12px 14px;
-    background: #f0f9ff;
-    border: 1px solid #bae6fd;
-    border-radius: 8px;
-    font-size: 11px; color: #0369a1; line-height: 1.6;
-  }
-
-  /* ── DIVIDER ── */
-  .divider { grid-column: 1/-1; height: 1px; background: var(--border); margin: 2px 0; }
-
-  /* ── VALIDATION ── */
-  .val-msg { font-size: 10px; color: var(--error); display: none; margin-top: 1px; }
-  .field.has-error .val-msg { display: block; }
-  .field.has-error label { color: var(--error); }
-
-  /* ── SPINNER ── */
-  .spinner {
-    display: none; width: 13px; height: 13px;
-    border: 2px solid var(--magenta-light);
-    border-top-color: var(--magenta);
-    border-radius: 50%;
-    animation: spin 0.5s linear infinite;
-    margin-left: 6px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── ACTION BAR ── */
-  .action-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px 22px;
-    margin-top: 8px;
-  }
-  .action-left { display: flex; gap: 8px; }
-
-  .btn {
-    height: 38px; padding: 0 20px;
-    border-radius: 30px; border: none;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 11px; font-weight: 700;
-    letter-spacing: 0.04em;
-    cursor: pointer; transition: all 0.15s;
-    display: inline-flex; align-items: center; gap: 6px;
-    text-transform: uppercase;
-  }
-  .btn-primary {
-    background: var(--magenta); color: #fff;
-    box-shadow: 0 4px 14px rgba(233,30,140,0.3);
-  }
-  .btn-primary:hover { background: var(--magenta-hover); box-shadow: 0 6px 20px rgba(233,30,140,0.4); transform: translateY(-1px); }
-  .btn-outline {
-    background: #fff; color: var(--dark);
-    border: 1.5px solid var(--border);
-  }
-  .btn-outline:hover { border-color: var(--magenta); color: var(--magenta); }
-  .btn-ghost {
-    background: transparent; color: var(--gray-mid);
-    border: 1.5px dashed var(--border);
-  }
-  .btn-ghost:hover { color: var(--dark); border-color: var(--gray-mid); }
-  .btn-danger {
-    background: transparent; color: var(--error);
-    border: 1.5px solid #fecaca;
-  }
-  .btn-danger:hover { background: #fff5f5; }
-
-  /* ── BTN NUEVA TEMÁTICA ── */
-  .btn-nueva-tematica {
-    height: 38px; width: 38px; flex-shrink: 0;
-    border-radius: 8px;
-    border: 1.5px solid var(--magenta-light);
-    background: var(--magenta-pale);
-    color: var(--magenta);
-    font-size: 20px; font-weight: 700; line-height: 1;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-  .btn-nueva-tematica:hover {
-    background: var(--magenta); color: #fff;
-    border-color: var(--magenta);
-    box-shadow: 0 4px 12px rgba(233,30,140,0.3);
-  }
-
-  
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    padding: 12px 20px; border-radius: 30px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 12px; font-weight: 700;
-    display: flex; align-items: center; gap: 8px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    z-index: 999;
-    transform: translateY(60px); opacity: 0;
-    transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
-    pointer-events: none;
-  }
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.ok  { background: var(--magenta); color: #fff; }
-  .toast.err { background: #d32f2f; color: #fff; }
-
-  /* ── MODE BUTTONS ── */
-  #btn-mode-alta, #btn-mode-modif {
-    transition: all 0.15s;
-  }
-  #btn-mode-alta.active {
-    background: var(--magenta) !important;
-    color: #fff !important;
-    border-color: var(--magenta) !important;
-    box-shadow: 0 4px 14px rgba(233,30,140,0.3) !important;
-  }
-  #btn-mode-modif.active {
-    background: var(--magenta) !important;
-    color: #fff !important;
-    border-color: var(--magenta) !important;
-    box-shadow: 0 4px 14px rgba(233,30,140,0.3) !important;
-  }
-  #btn-mode-alta:not(.active):hover, #btn-mode-modif:not(.active):hover {
-    border-color: var(--magenta) !important;
-    color: var(--magenta) !important;
-  }
-</style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
 
@@ -509,645 +568,600 @@
 </div>
 
 <div class="page">
-
-  <div style="background:#fff;border:1px solid #e8e3ef;border-radius:14px;padding:16px 22px;display:flex;align-items:center;gap:16px;margin-bottom:24px;">
-    <span style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#777;white-space:nowrap;flex-shrink:0;">Modo de operación</span>
-    <div style="display:flex;gap:8px;">
-      <button id="btn-mode-alta" onclick="setMode('alta')" style="height:38px;padding:0 22px;border-radius:30px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #E91E8C;background:#E91E8C;color:#fff;box-shadow:0 4px 14px rgba(233,30,140,0.3);">Alta de curso</button>
-      <button id="btn-mode-modif" onclick="setMode('modif')" style="height:38px;padding:0 22px;border-radius:30px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #e8e3ef;background:#fff;color:#444;">Modificación de curso</button>
-    </div>
-  </div>
-
-  <div id="curso-selector-card" style="display:none;background:#fff8f0;border:2px solid #ffcc80;border-radius:12px;padding:18px 22px;margin-bottom:20px;align-items:center;gap:16px;">
-    <div style="font-size:22px;flex-shrink:0;">🔍</div>
-    <div style="flex-shrink:0;">
-      <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#e65100;">Seleccionar curso a modificar</div>
-      <div style="font-size:11px;color:#777;margin-top:2px;">Debe seleccionar un curso para habilitar la edición.</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;flex:1;">
-      <div style="position:relative;flex:1;max-width:420px;">
-        <select id="select-curso-existente" onchange="onCursoSeleccionado()" style="width:100%;height:38px;padding:0 34px 0 13px;font-family:'Inter',sans-serif;font-size:13px;color:#1a1a1a;background:#fff;border:1.5px solid #e8e3ef;border-radius:8px;outline:none;appearance:none;cursor:pointer;">
-          <option value="">— Seleccione un curso existente —</option>
-          <option value="001001">001001 — Expertos en Dermofarmacia — Cohorte 2025</option>
-          <option value="001002">001002 — Cosmética activa avanzada</option>
-          <option value="001003">001003 — Farmacología tópica aplicada</option>
-          <option value="001004">001004 — Nutrición y salud de la piel</option>
-          <option value="001005">001005 — Dermatología pediátrica esencial</option>
-        </select>
-        <div style="position:absolute;right:13px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #777;pointer-events:none;"></div>
+  <div class="container">
+    
+    <div class="header-nav">
+      <div class="breadcrumbs">CURSOS > <strong id="breadcrumb-current">Alta de curso</strong></div>
+      <div class="mode-selector">
+        <button type="button" id="btn-mode-alta" class="active" onclick="setMode('alta')">ALTA</button>
+        <button type="button" id="btn-mode-modif" onclick="setMode('modif')">MODIFICACIÓN</button>
       </div>
     </div>
-  </div>
 
-  <div class="page-header">
-    <div>
-      <div class="page-eyebrow">✨ Academia GLM Dermofarmacia</div>
-      <div class="page-title" id="page-title">Alta de <em>curso</em></div>
-      <div class="page-subtitle" id="page-subtitle">Registrá un nuevo curso, vinculándolo con una temática vigente y un profesor responsable.</div>
+    <h1 id="page-title">Alta de <em>curso</em></h1>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+      <div style="font-size: 13px; font-weight: 600; color: var(--slate-dark);">
+        Id curso
+      </div>
+      <div style="text-align: right;">
+        <div id="display-id" style="font-size: 18px; font-weight: 800; color: var(--magenta); letter-spacing: 0.5px;">ID ------</div>
+        <div id="display-id-hint" style="font-size: 10px; color: var(--slate-light); font-style: italic; margin-top: 2px;">Lo genera el sistema al guardar</div>
+      </div>
     </div>
-    <div class="id-badge">
-      <div class="id-badge-label">ID Curso</div>
-      <div class="id-badge-value" id="display-id">——————</div>
-      <div class="id-badge-note">Autoincremental · asignado al guardar</div>
+
+    <div class="selector-card" id="curso-selector-card" style="display: none; margin-bottom: 25px;">
+      <div style="flex: 1;">
+        <label>Seleccionar Curso a Modificar <span class="ast">*</span></label>
+        <select id="select-curso-existente" onchange="onCursoSeleccionado()">
+          <option value="">— Elija un curso del listado —</option>
+          <option value="001001">999999 — X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9</option>
+          <option value="001002">999999 — X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9</option>
+        </select>
+        <div class="field-hint">IdCurso: formato 999,999. Permite buscar el registro existente para su edición.</div>
+      </div>
     </div>
-  </div>
 
-  <div class="req-legend"><span class="ast">*</span> Campo obligatorio</div>
+    <form id="form-curso" onsubmit="event.preventDefault();">
 
-  <div class="section-card" id="sec1">
-    <div class="section-header" onclick="toggleSec('sec1')">
-      <div class="section-num-pill">1</div>
-      <span class="section-title">Datos básicos del curso</span>
-      <span class="section-toggle open" id="sec1-tog">▾</span>
-    </div>
-    <div class="section-body" id="sec1-body">
-
-      <div class="field span-2" id="f-nombre">
-        <label>Nombre del curso <span class="ast">*</span></label>
+      <div class="section-card" id="sec1">
+        <div class="section-header" onclick="toggleSec('sec1')">
+          <div class="section-num-pill">1</div>
+          <span class="section-title">Datos básicos del curso</span>
+          <span class="section-toggle" id="sec1-tog">▾</span>
+        </div>
+        <div class="section-body" id="sec1-body">
+          
+          <div class="field span-2" id="f-nombre">
+            <label>Nombre del curso <span class="ast">*</span></label>
         <input type="text" id="nombre" placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9" maxlength="100">
         <div class="field-hint">Alfanumérico. Máximo 100 caracteres.</div>
         <div class="val-msg">El nombre del curso es obligatorio.</div>
-      </div>
-
-      <div class="field" id="f-tematica">
-        <label>Temática <span class="ast">*</span></label>
-        <div class="inline-group" style="align-items:stretch;">
-          <div class="select-wrapper" style="flex:1;">
-            <select id="tematica" onchange="onTematica()">
-              <option value="">— Seleccione una temática —</option>
-              <option value="DER">DER — Dermatología clínica</option>
-              <option value="COS">COS — Cosmética y cuidado facial</option>
-              <option value="FAR">FAR — Farmacología dermatológica</option>
-              <option value="NUT">NUT — Nutrición y piel</option>
-              <option value="PED">PED — Dermatología pediátrica</option>
-            </select>
           </div>
-          <button type="button" class="btn-nueva-tematica" onclick="nuevaTematica()" title="Alta de nueva temática">+</button>
-        </div>
-        <div class="field-hint">Solo temáticas vigentes. Al cambiar, actualiza y limpia el profesor. Usá <strong>+</strong> para dar de alta una nueva temática.</div>
-        <div class="val-msg">Debe seleccionar una temática.</div>
-      </div>
 
-      <div class="field" id="f-profesor">
-        <label>
-          Profesor/a responsable <span class="ast">*</span>
-          <div class="spinner" id="spinner"></div>
-        </label>
-        <div class="select-wrapper">
-          <select id="profesor" onchange="onProfesor()" disabled>
-            <option value="">— Primero seleccione una temática —</option>
-          </select>
-        </div>
-        <div class="field-hint">Solo docentes con vínculo vigente en la temática elegida.</div>
-        <div class="val-msg">Debe seleccionar un/a profesor/a responsable.</div>
-      </div>
+          <div class="field" id="f-tematica" style="grid-column: 1;">
+            <label>Temática <span class="ast">*</span></label>
+            <div class="inline-group">
+              <div class="select-wrapper">
+                <select id="tematica" onchange="onTematica()">
+                  <option value="">— Seleccione una temática —</option>
+                  <option value="DER">X9X — X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9</option>
+                  <option value="COS">X9X — X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9</option>
+                  <option value="FAR">X9X — X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9</option>
+                  <option value="NUT">X9X — X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9</option>
+                  <option value="PED">X9X — X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9</option>
+                </select>
+              </div>
+              <button type="button" id="btn-nueva-tematica" class="btn-nueva-tematica" onclick="nuevaTematica()" title="Alta de nueva temática">+</button>
+            </div>
+            <div class="field-hint">CodTematica: Alfanumérico  Longitud: 3.  y Nombre: Alfanumerico Max. 50 caracteres. Obligatorio.</div>
+            <div class="val-msg">Debe seleccionar una temática válida.</div>
+          </div>
 
-      <div class="prof-panel" id="prof-panel">
-        <div class="prof-panel-title">Datos del profesor seleccionado</div>
-        <div class="prof-grid">
-          <div class="prof-item"><label>Nombre completo</label><span id="p-nombre">—</span></div>
-          <div class="prof-item"><label>Tipo y N.º de documento (capturado internamente)</label><span id="p-doc">—</span></div>
-          <div class="prof-item"><label>Especialización declarada</label><span id="p-esp">—</span></div>
-          <div class="prof-item"><label>Vínculo con temática</label><span id="p-estado" style="color:var(--magenta);font-weight:700;">Vigente ✓</span></div>
-        </div>
-      </div>
+          <div class="field" id="f-profesor" style="grid-column: 2;">
+            <label>Profesor/a responsable <span class="ast">*</span> <div class="spinner" id="spinner"></div></label>
+            <div class="select-wrapper">
+              <select id="profesor" onchange="onProfesor()" disabled>
+                <option value="">— Primero seleccione una temática —</option>
+              </select>
+            </div>
+            <div class="field-hint">CodTipoDocProf y NumDocProf. Vigente en la entidad.</div>
+            <div class="val-msg">Debe seleccionar un/a docente válido/a.</div>
+          </div>
 
-      <div class="field span-2" id="f-descripcion">
-        <label>Descripción <span class="ast">*</span></label>
-        <textarea id="descripcion" placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9" maxlength="500"></textarea>
+          <div class="field" id="f-nueva-tematica-container" style="display: none; grid-column: 1; background: var(--magenta-pale); border: 1.5px dashed var(--magenta-light); padding: 15px; border-radius: 10px; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 10px;">
+              <div style="flex: 0 0 85px;">
+                <label style="color: var(--magenta);">Código <span class="ast">*</span></label>
+                <input type="text" id="nuevo-codigo-tematica" placeholder="X9X" maxlength="3" style="border-color: var(--magenta-light); text-transform: uppercase; height: 36px;" disabled>
+              </div>
+              <div style="flex: 1;">
+                <label style="color: var(--magenta);">Nombre de Temática <span class="ast">*</span></label>
+                <input type="text" id="nuevo-nombre-tematica" placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9" maxlength="50" style="border-color: var(--magenta-light); height: 36px;">
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <label style="color: var(--magenta);">Descripción <span class="ast">*</span></label>
+              <textarea id="nuevo-descripcion-tematica" placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9" maxlength="250" style="border-color: var(--magenta-light); height: 60px; font-family: 'Montserrat', sans-serif; font-size: 13px; padding: 8px;"></textarea>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+              <div class="field-hint" style="color: var(--magenta); margin: 0;"></div>
+              <button type="button" class="btn btn-primary" id="btn-add-nueva-tematica" onclick="confirmarNuevaTematica()" style="height: 30px; border-radius: 6px; padding: 0 12px; font-size: 11px; box-shadow: none;">Añadir</button>
+            </div>
+          </div>
+
+          <div class="field span-2" id="f-descripcion">
+            <label>Descripción del curso <span class="ast">*</span></label>
+            <textarea id="descripcion" placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9" maxlength="500"></textarea>
         <div class="field-hint">Obligatorio. Alfanumérico. Máximo 500 caracteres.</div>
-        <div class="val-msg">La descripción es obligatoria.</div>
-      </div>
+            <div class="val-msg">La descripción es obligatoria.</div>
+          </div>
 
-    </div>
-  </div>
-
-  <div class="section-card" id="sec2">
-    <div class="section-header" onclick="toggleSec('sec2')">
-      <div class="section-num-pill">2</div>
-      <span class="section-title">Valores y vigencia</span>
-      <span class="section-toggle open" id="sec2-tog">▾</span>
-    </div>
-    <div class="section-body cols-3" id="sec2-body">
-
-      <div class="field" id="f-precio">
-        <label>Precio (ARS) <span class="ast">*</span></label>
-        <div class="inline-group">
-          <span class="prefix">$</span>
-          <input type="number" id="precio" placeholder="0,00" min="0" step="0.01">
         </div>
-        <div class="field-hint">Formato $999.999.999,99. Debe ser ≥ 0. Ingreso manual.</div>
-        <div class="val-msg">Ingrese un precio válido (mayor o igual a 0).</div>
       </div>
 
-      <div class="field" id="f-duracion">
-        <label>Duración estimada (hs) <span class="ast">*</span></label>
-        <div class="inline-group">
-          <input type="number" id="duracion" placeholder="0,00" min="0" max="999.99" step="0.01">
-          <span class="prefix">hs.</span>
+      <div class="section-card" id="sec2">
+        <div class="section-header" onclick="toggleSec('sec2')">
+          <div class="section-num-pill">2</div>
+          <span class="section-title">Valores y vigencia del curso</span>
+          <span class="section-toggle" id="sec2-tog">▾</span>
         </div>
-        <div class="field-hint">Numérico. Formato 999,99. Longitud 5.</div>
-        <div class="val-msg">Ingrese la duración estimada.</div>
-      </div>
+        <div class="section-body" id="sec2-body">
+          
+          <div class="field" id="f-precio">
+            <label>Precio del curso <span class="ast">*</span></label>
+            <input type="text" id="precio" placeholder="$999.999.999,99">
+            <div class="field-hint">Numérico. Longitud: 11 posiciones. Valor mínimo >= 0. Obligatorio.</div>
+            <div class="val-msg">Ingrese un precio válido sin caracteres de texto.</div>
+          </div>
 
-      <div class="field" id="f-comision">
-        <label>Comisión profesor (%) <span class="ast">*</span></label>
-        <div class="inline-group">
-          <input type="number" id="comision" placeholder="X9X9X" min="0" max="100" step="0.01">
-          <span class="prefix">%</span>
+          <div class="field" id="f-duracion">
+            <label>Duración estimada en horas <span class="ast">*</span></label>
+            <input type="text" id="duracion" placeholder="999,99">
+            <div class="field-hint">Numérico. Longitud Max.: 5 caracteres. Formato decimal con coma. Obligatorio.</div>
+            <div class="val-msg">La duración estimada es obligatoria.</div>
+          </div>
+
+          <div class="field" id="f-comision">
+            <label>Porcentaje de comisión docente <span class="ast">*</span></label>
+            <input type="text" id="comision" placeholder="%999,99">
+            <div class="field-hint">Numérico. Longitud: 5 posiciones. Límite máximo <= 100,00. Obligatorio.</div>
+            <div class="val-msg">Comisión requerida y menor o igual a 100,00.</div>
+          </div>
+
+          <div class="field" id="f-fecha-desde">
+            <label>Fecha de vigencia desde <span class="ast">*</span></label>
+            <input type="date" id="fecha-desde" placeholder="DD/MM/AAAA">
+            <div class="field-hint">Fecha estándar. Formato obligatorio DD/MM/AAAA. Disponibilidad inicial.</div>
+            <div class="val-msg">La fecha de vigencia inicial es requerida.</div>
+          </div>
+
+          <div class="field" id="f-fecha-hasta">
+            <label>Fecha de vigencia hasta</label>
+            <input type="date" id="fecha-hasta" placeholder="DD/MM/AAAA">
+            <div class="field-hint">Fecha estándar. Formato DD/MM/AAAA. Opcional (Vacío si continúa vigente).</div>
+            <div class="val-msg">La fecha final no puede ser anterior a la de inicio.</div>
+          </div>
+
         </div>
-        <div class="field-hint">Numérico. Formato %999,99. No debe superar 100,00.</div>
-        <div class="val-msg">Ingrese la comisión del profesor (máx. 100).</div>
       </div>
 
-      <div class="field" id="f-desde">
-        <label>Vigente desde <span class="ast">*</span></label>
-        <input type="date" id="fecha-desde" onchange="recalcVig()">
-        <div class="field-hint">Obligatorio. Formato DD/MM/AAAA.</div>
-        <div class="val-msg">La fecha de inicio de vigencia es obligatoria.</div>
+      <div class="section-card" id="sec3">
+        <div class="section-header" onclick="toggleSec('sec3')">
+          <div class="section-num-pill">3</div>
+          <span class="section-title">Integraciones de sistemas y encuestas corporativas</span>
+          <span class="section-toggle" id="sec3-tog">▾</span>
+        </div>
+        <div class="section-body" id="sec3-body">
+          
+          <div class="field span-2" id="f-encuesta-fin">
+            <label>URL Encuesta Fin de Curso <span class="ast">*</span></label>
+            <input type="text" id="encuesta-fin" placeholder="https://..." maxlength="255">
+            <div class="field-hint">Hipervínculo válido. Longitud máxima: 255 posiciones. Remitido a graduados. Obligatorio.</div>
+            <div class="val-msg">La URL de la encuesta final es obligatoria.</div>
+          </div>
+
+          <div class="field span-2" id="f-encuesta-abandono">
+            <label>URL Encuesta Abandono de Curso <span class="ast">*</span></label>
+            <input type="text" id="encuesta-abandono" placeholder="https://..." maxlength="255">
+            <div class="field-hint">Hipervínculo válido. Longitud máxima: 255 posiciones. Remitido a deserciones. Obligatorio.</div>
+            <div class="val-msg">La URL de la encuesta de abandono es obligatoria.</div>
+          </div>
+
+          <div class="field" id="f-oferta-web">
+            <label>ID Oferta Académica Web</label>
+            <input type="text" id="oferta-web" placeholder="999,999" maxlength="6">
+            <div class="field-hint">Numérico. Longitud: 6 posiciones. Valor inequívoco de sincronización web. Opcional.</div>
+            <div class="val-msg">El ID debe ser estrictamente numérico.</div>
+          </div>
+
+          <div class="field" id="f-art-erp">
+            <label>ID Artículo ERP</label>
+            <input type="text" id="art-erp" placeholder="999,999" maxlength="6">
+            <div class="field-hint">Numérico. Longitud: 6 posiciones. Vinculación directa para facturaciones comerciales. Opcional.</div>
+            <div class="val-msg">El ID de artículo debe ser numérico.</div>
+          </div>
+
+        </div>
       </div>
 
-      <div class="field" id="f-hasta">
-        <label>Vigente hasta</label>
-        <input type="date" id="fecha-hasta" onchange="recalcVig()">
-        <div class="field-hint">Opcional. Si se informa, debe ser ≥ Vigente desde.</div>
-        <div class="val-msg">La fecha de fin debe ser posterior o igual a Vigente desde.</div>
+      <div class="action-bar">
+
+        <button type="button" class="btn btn-secondary" onclick="cancelar()">Cancelar</button>
+        <button type="button" id="btn-guardar" class="btn btn-primary" onclick="guardarCurso()">Guardar Curso</button>
       </div>
 
-    </div>
+    </form>
   </div>
 
-  <div class="section-card" id="sec3">
-    <div class="section-header" onclick="toggleSec('sec3')">
-      <div class="section-num-pill">3</div>
-      <span class="section-title">Integraciones y encuestas</span>
-      <span class="section-toggle open" id="sec3-tog">▾</span>
-    </div>
-    <div class="section-body cols-2" id="sec3-body">
+  <script>
+    // Repositorio Mock inicializado según reglas de negocio
+    const CURSOS_MOCK = {
+      '001001': { nombre: 'Expertos en Dermofarmacia — Cohorte 2025', tematica: 'DER', profesor: 'P001', descripcion: 'Curso avanzado de dermofarmacia clínica orientado a profesionales.', precio: '45000,00', duracion: '24,00', comision: '15,00', desde: '2025-03-01', hasta: '2025-12-31', eFin: 'https://forms.gle/fin001', eAba: 'https://forms.gle/aba001', web: '101101', erp: '900101' },
+      '001002': { nombre: 'Cosmética activa avanzada', tematica: 'COS', profesor: 'P003', descripcion: 'Formulación y aplicación de activos cosméticos de grado profesional.', precio: '32000,00', duracion: '16,00', comision: '12,00', desde: '2025-04-15', hasta: '', eFin: 'https://forms.gle/fin002', eAba: 'https://forms.gle/aba002', web: '101102', erp: '900102' }
+    };
 
-      <div class="field" id="f-enc-fin">
-        <label>Encuesta de finalización <span class="ast">*</span></label>
-        <input type="text" id="enc-fin" readonly placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X" maxlength="255">
-        <div class="field-hint">Calculada por el sistema. Solo lectura. Máximo 255 caracteres.</div>
-        <div class="val-msg">Ingrese una URL válida para la encuesta de finalización.</div>
-      </div>
-
-      <div class="field" id="f-enc-abandono">
-        <label>Encuesta de abandono <span class="ast">*</span></label>
-        <input type="text" id="enc-abandono" readonly placeholder="X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X" maxlength="255">
-        <div class="field-hint">Calculada por el sistema. Solo lectura. Máximo 255 caracteres.</div>
-        <div class="val-msg">Ingrese una URL válida para la encuesta de abandono.</div>
-      </div>
-
-      <div class="field" id="f-oferta">
-        <label>ID oferta web</label>
-        <input type="number" id="id-oferta-web" placeholder="X9X9X9" readonly>
-        <div class="field-hint">Recuperado por el sistema al sincronizar con la web. Solo lectura.</div>
-        <div class="val-msg">El ID oferta web debe ser un número de hasta 6 posiciones.</div>
-      </div>
-
-      <div class="field" id="f-erp">
-        <label>ID artículo ERP</label>
-        <input type="number" id="id-erp" placeholder="X9X9X9" readonly>
-        <div class="field-hint">Recuperado por el sistema al sincronizar con el ERP. Solo lectura.</div>
-        <div class="val-msg">El ID artículo ERP debe ser un número de hasta 6 posiciones.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="action-bar">
-    <div class="action-left">
-      <button class="btn btn-danger" onclick="limpiar()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-        Limpiar
-      </button>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;">
-      <button class="btn btn-outline" onclick="cancelar()">Cancelar</button>
-      <button class="btn btn-primary" id="btn-guardar" onclick="guardarCurso()" disabled>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-        <span id="btn-guardar-label">Guardar curso</span>
-      </button>
-    </div>
-  </div>
-
-</div>
-
-<div class="toast" id="toast">
-  <svg id="t-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-  <span id="t-msg"></span>
-</div>
-
-<script>
-
-// ─── MOCK CURSOS ─────────────────────────────────────────
-const CURSOS_MOCK = {
-  '001001': { nombre:'Expertos en Dermofarmacia — Cohorte 2025', tematica:'DER', profesor:'P001', descripcion:'Curso avanzado de dermofarmacia clínica orientado a profesionales del sector.', precio:'45000', duracion:'24', comision:'15', desde:'2025-03-01', hasta:'2025-12-31' },
-  '001002': { nombre:'Cosmética activa avanzada', tematica:'COS', profesor:'P003', descripcion:'Formulación y aplicación de activos cosméticos para uso profesional.', precio:'32000', duracion:'16', comision:'12', desde:'2025-04-15', hasta:'' },
-  '001003': { nombre:'Farmacología tópica aplicada', tematica:'FAR', profesor:'P005', descripcion:'Principios de farmacología aplicados a tratamientos tópicos dermatológicos.', precio:'38000', duracion:'20', comision:'14', desde:'2025-05-01', hasta:'2025-11-30' },
-  '001004': { nombre:'Nutrición y salud de la piel', tematica:'NUT', profesor:'P006', descripcion:'Relación entre nutrición, microbioma y salud cutánea.', precio:'28000', duracion:'12', comision:'10', desde:'2025-06-01', hasta:'' },
-  '001005': { nombre:'Dermatología pediátrica esencial', tematica:'PED', profesor:'P007', descripcion:'Afecciones cutáneas en niños. Diagnóstico y tratamiento.', precio:'35000', duracion:'18', comision:'13', desde:'2025-07-01', hasta:'2026-06-30' },
+    const PROFESORES_MOCK = {
+  'DER': [
+    { id: 'DOC - X9X9X9X9X9X9X9X', nombre: 'DOC - X9X9X9X9X9X9X9X' },
+    { id: 'DOC - X9X9X9X9X9X9X9X', nombre: 'DOC - X9X9X9X9X9X9X9X' }
+  ],
+  'COS': [
+    { id: 'DOC - X9X9X9X9X9X9X9X', nombre: 'DOC -X9X9X9X9X9X9X9X' }
+  ],
+  'FAR': [
+    { id: 'DOC -X9X9X9X9X9X9X9X', nombre: 'DOC - X9X9X9X9X9X9X9X' }
+  ],
+  'NUT': [
+    { id: 'DOC - X9X9X9X9X9X9X9X', nombre: 'DOC - X9X9X9X9X9X9X9X' }
+  ],
+  'PED': [
+    { id: 'DOC - X9X9X9X9X9X9X9X', nombre: 'DOC - X9X9X9X9X9X9X9X' }
+  ]
 };
 
-// ─── MODO ─────────────────────────────────────────────────
-let currentMode = 'alta';
-let cursoSeleccionado = false;
+    let currentMode = 'alta';
 
-function setMode(mode) {
-  currentMode = mode;
-  cursoSeleccionado = false;
+    function setMode(mode) {
+      currentMode = mode;
+      
+      document.getElementById('btn-mode-alta').className = mode === 'alta' ? 'active' : '';
+      document.getElementById('btn-mode-modif').className = mode === 'modif' ? 'active' : '';
+      
+      if (mode === 'alta') {
+        document.getElementById('curso-selector-card').style.display = 'none';
+        document.getElementById('breadcrumb-current').innerText = 'Alta de curso';
+        document.getElementById('page-title').innerHTML = 'Alta de <em>curso</em>';
+        
+        // Comportamiento visual para ALTA
+        document.getElementById('display-id').innerText = 'ID ------';
+        document.getElementById('display-id').style.color = 'var(--magenta)';
+        document.getElementById('display-id-hint').innerText = 'Lo genera el sistema al guardar';
+      } else {
+        document.getElementById('curso-selector-card').style.display = 'flex';
+        document.getElementById('breadcrumb-current').innerText = 'Modificación de curso';
+        document.getElementById('page-title').innerHTML = 'Modificación de <em>curso</em>';
+        
+        // Comportamiento inicial para MODIFICACIÓN (hasta que elija un curso)
+        document.getElementById('display-id').innerText = '——————';
+        document.getElementById('display-id').style.color = 'var(--slate-light)';
+        document.getElementById('display-id-hint').innerText = 'Seleccione un curso para ver su ID';
+      }
 
-  document.getElementById('btn-mode-alta').className = mode === 'alta' ? 'active' : '';
-  document.getElementById('btn-mode-modif').className = mode === 'modif' ? 'active' : '';
-  // Re-apply inline styles
-  if (mode === 'alta') {
-    document.getElementById('btn-mode-alta').style.cssText = 'height:38px;padding:0 22px;border-radius:30px;font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #E91E8C;background:#E91E8C;color:#fff;box-shadow:0 4px 14px rgba(233,30,140,0.3);';
-    document.getElementById('btn-mode-modif').style.cssText = 'height:38px;padding:0 22px;border-radius:30px;font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #e8e3ef;background:#fff;color:#444;';
-  } else {
-    document.getElementById('btn-mode-modif').style.cssText = 'height:38px;padding:0 22px;border-radius:30px;font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #E91E8C;background:#E91E8C;color:#fff;box-shadow:0 4px 14px rgba(233,30,140,0.3);';
-    document.getElementById('btn-mode-alta').style.cssText = 'height:38px;padding:0 22px;border-radius:30px;font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;border:1.5px solid #e8e3ef;background:#fff;color:#444;';
-  }
-
-  // Breadcrumb
-  document.getElementById('breadcrumb-current').textContent = mode === 'alta' ? 'Alta de curso' : 'Modificación de curso';
-
-  // Title
-  document.getElementById('page-title').innerHTML = mode === 'alta' ? 'Alta de <em>curso</em>' : 'Modificación de <em>curso</em>';
-  document.getElementById('page-subtitle').textContent = mode === 'alta'
-    ? 'Registrá un nuevo curso, vinculándolo con una temática vigente y un profesor responsable.'
-    : 'Seleccioná un curso existente y modificá los campos habilitados.';
-
-  // Guardar label
-  document.getElementById('btn-guardar-label').textContent = mode === 'alta' ? 'Guardar curso' : 'Guardar cambios';
-
-  // Selector curso
-  const card = document.getElementById('curso-selector-card');
-  card.style.display = mode === 'modif' ? 'flex' : 'none';
-  if (mode === 'modif') {
-    document.getElementById('select-curso-existente').value = '';
-  }
-
-  // ID display
-  const el = document.getElementById('display-id');
-  el.textContent = '——————'; el.classList.remove('assigned');
-
-  // Reset form
-  resetFormFields();
-  applyRestrictions();
-}
-
-function resetFormFields() {
-  ['nombre','descripcion','precio','duracion','comision','fecha-desde','fecha-hasta'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  document.querySelectorAll('.field').forEach(f => f.classList.remove('has-error'));
-  document.querySelectorAll('input,select,textarea').forEach(i => i.classList.remove('error'));
-  document.getElementById('tematica').value = '';
-  document.getElementById('profesor').disabled = true;
-  document.getElementById('profesor').innerHTML = '<option value="">— Primero seleccione una temática —</option>';
-  document.getElementById('prof-panel').classList.remove('visible');
-  document.getElementById('btn-guardar').disabled = true;
-}
-
-function applyRestrictions() {
-  const isModif = currentMode === 'modif';
-  const hasCurso = cursoSeleccionado;
-
-  const setRO = (id, ro) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (el.tagName === 'SELECT') el.disabled = ro;
-    else el.readOnly = ro;
-  };
-
-  // Nombre: editable en alta y en modif con curso
-  setRO('nombre', isModif && !hasCurso);
-
-  // Tematica: solo en alta
-  setRO('tematica', isModif);
-  const btnTem = document.getElementById('btn-nueva-tematica');
-  if (btnTem) btnTem.style.display = isModif ? 'none' : '';
-
-  // Profesor: solo en alta
-  if (!isModif) {
-    // en alta ya se maneja por onTematica
-  } else {
-    document.getElementById('profesor').disabled = true;
-  }
-
-  // Descripcion: editable en alta y en modif con curso
-  setRO('descripcion', isModif && !hasCurso);
-
-  // Precio: editable en alta y en modif con curso
-  setRO('precio', isModif && !hasCurso);
-
-  // Duracion: editable en alta y en modif con curso
-  setRO('duracion', isModif && !hasCurso);
-
-  // Comision: editable en alta y en modif con curso
-  setRO('comision', isModif && !hasCurso);
-
-  // Vigente desde: solo en alta (en modif no modificable)
-  setRO('fecha-desde', isModif);
-
-  // Vigente hasta: editable en alta y en modif con curso
-  setRO('fecha-hasta', isModif && !hasCurso);
-
-  // Encuestas: siempre readonly
-  document.getElementById('enc-fin').readOnly = true;
-  document.getElementById('enc-abandono').readOnly = true;
-  document.getElementById('id-oferta-web').readOnly = true;
-  document.getElementById('id-erp').readOnly = true;
-
-  if (isModif && !hasCurso) {
-    document.getElementById('btn-guardar').disabled = true;
-  } else {
-    checkObligatorios();
-  }
-}
-
-function onCursoSeleccionado() {
-  const id = document.getElementById('select-curso-existente').value;
-  if (!id) {
-    cursoSeleccionado = false;
-    resetFormFields();
-    applyRestrictions();
-    return;
-  }
-  const c = CURSOS_MOCK[id];
-  if (!c) return;
-  cursoSeleccionado = true;
-
-  document.getElementById('nombre').value = c.nombre;
-  document.getElementById('descripcion').value = c.descripcion;
-  document.getElementById('precio').value = c.precio;
-  document.getElementById('duracion').value = c.duracion;
-  document.getElementById('comision').value = c.comision;
-  document.getElementById('fecha-desde').value = c.desde;
-  document.getElementById('fecha-hasta').value = c.hasta;
-
-  // Tematica (readonly, visual)
-  document.getElementById('tematica').value = c.tematica;
-
-  // Profesor (readonly, visual) — populate select
-  const profSel = document.getElementById('profesor');
-  profSel.innerHTML = '';
-  (PROFS[c.tematica]||[]).forEach(p => {
-    const o = document.createElement('option');
-    o.value = p.v; o.textContent = p.l;
-    profSel.appendChild(o);
-  });
-  profSel.value = c.profesor;
-
-  // Show profesor panel
-  const pData = (PROFS[c.tematica]||[]).find(x => x.v === c.profesor);
-  if (pData) {
-    document.getElementById('p-nombre').textContent = pData.n;
-    document.getElementById('p-doc').textContent    = pData.d;
-    document.getElementById('p-esp').textContent    = pData.e;
-    document.getElementById('prof-panel').classList.add('visible');
-  }
-
-  // ID display
-  const el = document.getElementById('display-id');
-  el.textContent = id; el.classList.add('assigned');
-
-  recalcVig();
-  applyRestrictions();
-  toast('Curso ' + id + ' cargado. Podés modificar los campos habilitados. 🌸', true);
-}
-
-// ─── DATA MOCK ───────────────────────────────────────────
-const PROFS = {
-  DER: [
-    { v:"P001", l:"Rodríguez, Ana Paula - DNI 28.456.789", n:"Ana Paula Rodríguez", d:"DNI 28.456.789 (cod.01)", e:"Dermatología clínica avanzada" },
-    { v:"P002", l:"Mitre, Carlos - DNI 22.111.333",        n:"Carlos Mitre",         d:"DNI 22.111.333 (cod.01)", e:"Dermatosis inflamatorias" },
-  ],
-  COS: [
-    { v:"P003", l:"Sánchez, Laura B. - DNI 31.200.100",    n:"Laura B. Sánchez",    d:"DNI 31.200.100 (cod.01)", e:"Cosmética activa y anti-edad" },
-    { v:"P004", l:"Díaz, Martín - DNI 25.876.543",         n:"Martín Díaz",          d:"DNI 25.876.543 (cod.01)", e:"Formulación cosmética" },
-  ],
-  FAR: [
-    { v:"P005", l:"Gómez, Valeria - DNI 30.000.999",       n:"Valeria Gómez",        d:"DNI 30.000.999 (cod.01)", e:"Farmacología tópica" },
-  ],
-  NUT: [
-    { v:"P006", l:"Torres, Ignacio - DNI 26.543.210",      n:"Ignacio Torres",       d:"DNI 26.543.210 (cod.01)", e:"Nutrición y dermatología" },
-  ],
-  PED: [
-    { v:"P007", l:"Navarro, Cecilia - DNI 29.876.001",     n:"Cecilia Navarro",      d:"DNI 29.876.001 (cod.01)", e:"Dermatología pediátrica" },
-    { v:"P008", l:"Herrera, Diego - DNI 27.432.100",       n:"Diego Herrera",         d:"DNI 27.432.100 (cod.01)", e:"Piel sensible infantil" },
-  ],
-};
-
-// ─── NUEVA TEMÁTICA ──────────────────────────────────────
-function nuevaTematica() {
-  const nombre = prompt('Alta de Nueva Temática\n\nIngresá el nombre de la nueva temática:');
-  if (!nombre || !nombre.trim()) return;
-  const codigo = nombre.trim().substring(0,3).toUpperCase();
-  const sel = document.getElementById('tematica');
-  const opt = document.createElement('option');
-  opt.value = codigo; opt.textContent = codigo + ' — ' + nombre.trim();
-  sel.appendChild(opt);
-  sel.value = codigo;
-  onTematica();
-  toast('Temática "' + nombre.trim() + '" dada de alta y seleccionada. 🌸', true);
-}
-
-
-
-// ─── TOGGLE SECTIONS ─────────────────────────────────────
-function toggleSec(id) {
-  const b = document.getElementById(id+'-body');
-  const t = document.getElementById(id+'-tog');
-  const open = b.style.display !== 'none';
-  b.style.display = open ? 'none' : '';
-  t.classList.toggle('open', !open);
-}
-
-// ─── HABILITAR BOTÓN GUARDAR cuando obligatorios completos ──
-function checkObligatorios() {
-  if (currentMode === 'modif' && !cursoSeleccionado) {
-    document.getElementById('btn-guardar').disabled = true; return;
-  }
-  const OBLIG = currentMode === 'alta'
-    ? ['nombre','tematica','profesor','descripcion','precio','duracion','comision','fecha-desde']
-    : ['nombre','descripcion','precio','duracion','comision'];
-  const completos = OBLIG.every(id => {
-    const el = document.getElementById(id);
-    return el && el.value.toString().trim() !== '';
-  });
-  document.getElementById('btn-guardar').disabled = !completos;
-}
-// Escuchar cambios en todos los obligatorios
-window.addEventListener('DOMContentLoaded', () => {
-  ['nombre','tematica','profesor','descripcion','precio','duracion','comision','fecha-desde','fecha-hasta'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', checkObligatorios);
-    if (el) el.addEventListener('change', checkObligatorios);
-  });
-});
-
-// ─── TEMATICA → PROFESORES ────────────────────────────────
-function onTematica() {
-  const val = document.getElementById('tematica').value;
-  const sel = document.getElementById('profesor');
-  const sp  = document.getElementById('spinner');
-  document.getElementById('prof-panel').classList.remove('visible');
-  // limpiar selección anterior
-  sel.value = '';
-  clearErr('f-tematica');
-  clearErr('f-profesor');
-  sel.innerHTML = '<option value="">— Cargando... —</option>';
-  sel.disabled = true;
-  sp.style.display = 'inline-block';
-
-  setTimeout(() => {
-    sp.style.display = 'none';
-    sel.innerHTML = '<option value="">— Seleccione un/a profesor/a —</option>';
-    if (val && PROFS[val]) {
-      PROFS[val].forEach(p => {
-        const o = document.createElement('option');
-        o.value = p.v; o.textContent = p.l;
-        sel.appendChild(o);
-      });
-      sel.disabled = false;
-    } else {
-      sel.innerHTML = '<option value="">— Primero seleccione una temática —</option>';
+      limpiar();
+      actualizarEstadoFormulario();
     }
-    checkObligatorios();
-  }, 380);
-}
 
-function onProfesor() {
-  const t = document.getElementById('tematica').value;
-  const v = document.getElementById('profesor').value;
-  const panel = document.getElementById('prof-panel');
-  clearErr('f-profesor');
-  if (!v || !t) { panel.classList.remove('visible'); checkObligatorios(); return; }
-  const p = (PROFS[t]||[]).find(x => x.v === v);
-  if (!p) { panel.classList.remove('visible'); checkObligatorios(); return; }
-  document.getElementById('p-nombre').textContent = p.n;
-  document.getElementById('p-doc').textContent    = p.d;
-  document.getElementById('p-esp').textContent    = p.e;
-  panel.classList.add('visible');
-  checkObligatorios();
-}
+    // Gestiona centralizadamente la disponibilidad de edición de cada campo
+    // Gestiona centralizadamente la disponibilidad de edición de cada campo
+    function actualizarEstadoFormulario() {
+      const idCursoSel = document.getElementById('select-curso-existente').value;
+      const inputs = document.querySelectorAll('#form-curso input, #form-curso select, #form-curso textarea');
+      const btnNuevaTematica = document.getElementById('btn-nueva-tematica');
 
-// ─── VIGENCIA ────────────────────────────────────────────
-function recalcVig() {
-  const fi = document.getElementById('fecha-desde').value;
-  const ff = document.getElementById('fecha-hasta').value;
-  clearErr('f-hasta');
-  if (ff && fi && ff < fi) {
-    setErr('f-hasta','La fecha de fin debe ser posterior o igual a Vigente desde.');
-  }
-  checkObligatorios();
-}
+      if (currentMode === 'alta') {
+        // En ALTA todo está disponible (excepto profesor que depende del flujo de temática)
+        inputs.forEach(el => {
+          if (el.id !== 'profesor') el.disabled = false;
+        });
+        btnNuevaTematica.disabled = false;
+        document.getElementById('btn-guardar').disabled = false;
+        
+        const codTematica = document.getElementById('tematica').value;
+        document.getElementById('profesor').disabled = !codTematica;
+      } else {
+        // En MODIFICACIÓN
+        if (!idCursoSel) {
+          // Sin curso seleccionado -> Bloqueo absoluto de todo el formulario
+          inputs.forEach(el => el.disabled = true);
+          btnNuevaTematica.disabled = true;
+          document.getElementById('btn-guardar').disabled = true;
+          document.getElementById('f-nueva-tematica-container').style.display = 'none';
+        } else {
+          // Con curso seleccionado -> Reglas explícitas de bloqueo
+          // Campos que SI se pueden modificar en edición
+          const modificables = ['nombre', 'descripcion', 'precio', 'duracion', 'fecha-hasta'];
+          
+          inputs.forEach(el => {
+            if (modificables.includes(el.id)) {
+              el.disabled = false;
+            } else {
+              el.disabled = true; // Bloquea temática, profesor, comisión, fecha desde, encuestas e IDs web/erp
+            }
+          });
+          
+          // Bloqueo total del flujo de añadir nueva temática
+          btnNuevaTematica.disabled = true;
+          document.getElementById('f-nueva-tematica-container').style.display = 'none';
+          document.getElementById('btn-guardar').disabled = false;
+        }
+      }
 
-// ─── VALIDATION URL ──────────────────────────────────────
-function isValidUrl(str) {
-  try { new URL(str); return true; } catch { return false; }
-}
+      // FORZAR BLOQUEO ABSOLUTO DE LA SECCIÓN 3 (Tanto en Alta como en Modificación)
+      const camposSeccion3 = ['encuesta-fin', 'encuesta-abandono', 'oferta-web', 'art-erp'];
+      camposSeccion3.forEach(id => {
+        document.getElementById(id).disabled = true;
+      });
+    }
 
-// ─── VALIDATION ──────────────────────────────────────────
-function setErr(id, msg) {
-  const el = document.getElementById(id); if(!el) return;
-  el.classList.add('has-error');
-  const vm = el.querySelector('.val-msg'); if(vm && msg) vm.textContent = msg;
-  el.querySelectorAll('input,select,textarea').forEach(i => i.classList.add('error'));
-}
-function clearErr(id) {
-  const el = document.getElementById(id); if(!el) return;
-  el.classList.remove('has-error');
-  el.querySelectorAll('input,select,textarea').forEach(i => i.classList.remove('error'));
-}
+    function onTematica() {
+      const codTematica = document.getElementById('tematica').value;
+      const selectProf = document.getElementById('profesor');
+      const spinner = document.getElementById('spinner');
 
-function validar() {
-  let ok = true;
-  // campos obligatorios simples
-  const campos = currentMode === 'alta' ? [
-    { fid:'f-nombre',      iid:'nombre',       msg:'El nombre del curso es obligatorio.' },
-    { fid:'f-tematica',    iid:'tematica',      msg:'Debe seleccionar una temática.' },
-    { fid:'f-profesor',    iid:'profesor',      msg:'Debe seleccionar un/a profesor/a responsable.' },
-    { fid:'f-descripcion', iid:'descripcion',   msg:'La descripción es obligatoria.' },
-    { fid:'f-precio',      iid:'precio',        msg:'Ingrese un precio válido (≥ 0).' },
-    { fid:'f-duracion',    iid:'duracion',      msg:'Ingrese la duración estimada.' },
-    { fid:'f-comision',    iid:'comision',      msg:'Ingrese la comisión del profesor.' },
-    { fid:'f-desde',       iid:'fecha-desde',   msg:'La fecha Vigente desde es obligatoria.' },
-  ] : [
-    { fid:'f-nombre',      iid:'nombre',       msg:'El nombre del curso es obligatorio.' },
-    { fid:'f-descripcion', iid:'descripcion',   msg:'La descripción es obligatoria.' },
-    { fid:'f-precio',      iid:'precio',        msg:'Ingrese un precio válido (≥ 0).' },
-    { fid:'f-duracion',    iid:'duracion',      msg:'Ingrese la duración estimada.' },
-    { fid:'f-comision',    iid:'comision',      msg:'Ingrese la comisión del profesor.' },
-  ];
-  campos.forEach(c => {
-    clearErr(c.fid);
-    const el = document.getElementById(c.iid);
-    if (!el || !el.value.toString().trim()) { setErr(c.fid, c.msg); ok = false; }
-  });
-  // precio >= 0
-  const precio = parseFloat(document.getElementById('precio').value);
-  if (!isNaN(precio) && precio < 0) { setErr('f-precio','El precio debe ser mayor o igual a cero.'); ok = false; }
-  // comisión <= 100
-  const com = parseFloat(document.getElementById('comision').value);
-  if (!isNaN(com) && com > 100) { setErr('f-comision','La comisión no puede superar el 100%.'); ok = false; }
-  // fecha hasta >= desde (si se informó)
-  const fd = document.getElementById('fecha-desde').value;
-  const fh = document.getElementById('fecha-hasta').value;
-  if (fd && fh && fh < fd) { setErr('f-hasta','La fecha de fin debe ser posterior o igual a Vigente desde.'); ok = false; }
-  // IDs numéricos 6 posiciones (opcionales, si se informaron)
-  const idOfw = document.getElementById('id-oferta-web').value.trim();
-  if (idOfw && (isNaN(idOfw) || idOfw.length > 6)) { setErr('f-oferta','Debe ser un número de hasta 6 posiciones.'); ok = false; }
-  const idErp = document.getElementById('id-erp').value.trim();
-  if (idErp && (isNaN(idErp) || idErp.length > 6)) { setErr('f-erp','Debe ser un número de hasta 6 posiciones.'); ok = false; }
-  return ok;
-}
+      selectProf.innerHTML = '<option value="">— Seleccione un/a profesor/a —</option>';
+      
+      if (!codTematica) {
+        selectProf.disabled = true;
+        return;
+      }
 
-// ─── ACTIONS ─────────────────────────────────────────────
-let idCounter = 1000;
+      spinner.style.display = 'inline-block';
+      
+      setTimeout(() => {
+        spinner.style.display = 'none';
+        selectProf.disabled = false;
+        
+        const profesores = PROFESORES_MOCK[codTematica] || [];
+        profesores.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.text = p.nombre;
+          selectProf.appendChild(opt);
+        });
 
-function guardarCurso() {
-  if (!validar()) {
-    toast('Revisá los campos marcados en rojo.', false);
-    document.querySelector('.field.has-error')?.scrollIntoView({ behavior:'smooth', block:'center' });
-    return;
-  }
-  if (currentMode === 'alta') {
-    idCounter++;
-    const nid = String(idCounter).padStart(6, '0');
-    const el = document.getElementById('display-id');
-    el.textContent = nid; el.classList.add('assigned');
-    document.getElementById('btn-guardar').disabled = true;
-    toast('¡Curso ' + nid + ' guardado exitosamente! 🌸', true);
-  } else {
-    const id = document.getElementById('select-curso-existente').value;
-    document.getElementById('btn-guardar').disabled = true;
-    toast('¡Cambios del curso ' + id + ' guardados exitosamente! 🌸', true);
-  }
-}
+        actualizarEstadoFormulario();
+      }, 400);
+    }
 
-function cancelar() { if (confirm('¿Cancelar el alta y volver al listado?')) toast('Operación cancelada.', true); }
+    function onCursoSeleccionado() {
+      const idCurso = document.getElementById('select-curso-existente').value;
+      if (!idCurso) {
+        limpiar();
+        return;
+      }
 
-function limpiar() {
-  if (!confirm('¿Limpiar todos los campos? Se perderán los datos no guardados.')) return;
-  if (currentMode === 'modif') { document.getElementById('select-curso-existente').value=''; cursoSeleccionado=false; }
-  resetFormFields();
-  applyRestrictions();
-  toast('Formulario limpiado.', true);
-}
+      const curso = CURSOS_MOCK[idCurso];
+      if (curso) {
+        document.getElementById('display-id').innerText = idCurso;
+        document.getElementById('nombre').value = curso.nombre;
+        document.getElementById('tematica').value = curso.tematica;
+        
+        // Simulación de carga síncrona de profesores
+        const selectProf = document.getElementById('profesor');
+        selectProf.innerHTML = '<option value="">— Seleccione un/a profesor/a —</option>';
+        const profesores = PROFESORES_MOCK[curso.tematica] || [];
+        profesores.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.text = p.nombre;
+          selectProf.appendChild(opt);
+        });
+        selectProf.value = curso.profesor;
 
-// ─── TOAST ───────────────────────────────────────────────
-let toastT;
-function toast(msg, ok) {
-  const t = document.getElementById('toast');
-  document.getElementById('t-msg').textContent = msg;
-  t.className = 'toast ' + (ok ? 'ok' : 'err');
-  requestAnimationFrame(() => t.classList.add('show'));
-  clearTimeout(toastT);
-  toastT = setTimeout(() => t.classList.remove('show'), 3400);
-}
-</script>
+        document.getElementById('descripcion').value = curso.descripcion;
+        document.getElementById('precio').value = curso.precio;
+        document.getElementById('duracion').value = curso.duracion;
+        document.getElementById('comision').value = curso.comision;
+        document.getElementById('fecha-desde').value = curso.desde;
+        document.getElementById('fecha-hasta').value = curso.hasta;
+        document.getElementById('encuesta-fin').value = curso.eFin;
+        document.getElementById('encuesta-abandono').value = curso.eAba;
+        document.getElementById('oferta-web').value = curso.web;
+        document.getElementById('art-erp').value = curso.erp;
+
+        actualizarEstadoFormulario();
+      }
+    }
+
+    function nuevaTematica() {
+      if (currentMode !== 'alta') return;
+      const container = document.getElementById('f-nueva-tematica-container');
+      container.style.display = (container.style.display === 'none') ? 'flex' : 'none';
+      if (container.style.display === 'flex') {
+        document.getElementById('nuevo-codigo-tematica').focus();
+      }
+    }
+
+    function confirmarNuevaTematica() {
+      if (currentMode !== 'alta') return;
+      
+      const inputCod = document.getElementById('nuevo-codigo-tematica');
+      const inputNom = document.getElementById('nuevo-nombre-tematica');
+      const cod = inputCod.value.trim().toUpperCase();
+      const nom = inputNom.value.trim();
+
+      if (cod.length !== 3) {
+        alert('Error normativo: El código de temática debe poseer exactamente 3 dígitos alfanuméricos (X9X).');
+        return;
+      }
+      if (!nom) {
+        alert('Debe indicar la denominación literal de la nueva temática.');
+        return;
+      }
+
+      PROFESORES_MOCK[cod] = [{ id: 'P_GEN_' + cod, nombre: 'DOC - X9X9X9X9X9X9X9X' }];
+
+      const selectTematica = document.getElementById('tematica');
+      const opt = document.createElement('option');
+      opt.value = cod;
+      opt.text = `${cod} — ${nom}`;
+      selectTematica.appendChild(opt);
+      selectTematica.value = cod;
+
+      inputCod.value = '';
+      inputNom.value = '';
+      document.getElementById('f-nueva-tematica-container').style.display = 'none';
+
+      onTematica();
+    }
+
+    function toggleSec(id) {
+      const body = document.getElementById(id + '-body');
+      const tog = document.getElementById(id + '-tog');
+      if (body.style.display === 'none') {
+        body.style.display = 'grid';
+        tog.innerText = '▾';
+      } else {
+        body.style.display = 'none';
+        tog.innerText = '▸';
+      }
+    }
+
+    function limpiar() {
+      // Remover todas las marcas de error visuales de la pantalla
+      document.querySelectorAll('.field').forEach(el => el.classList.remove('error'));
+
+      document.getElementById('nombre').value = '';
+      document.getElementById('tematica').value = '';
+      document.getElementById('profesor').innerHTML = '<option value="">— Primero seleccione una temática —</option>';
+      document.getElementById('descripcion').value = '';
+      document.getElementById('precio').value = '';
+      document.getElementById('duracion').value = '';
+      document.getElementById('comision').value = '';
+      document.getElementById('fecha-desde').value = '';
+      document.getElementById('fecha-hasta').value = '';
+      document.getElementById('encuesta-fin').value = '';
+      document.getElementById('encuesta-abandono').value = '';
+      document.getElementById('oferta-web').value = '';
+      document.getElementById('art-erp').value = '';
+      
+      document.getElementById('nuevo-codigo-tematica').value = '';
+      document.getElementById('nuevo-nombre-tematica').value = '';
+      document.getElementById('f-nueva-tematica-container').style.display = 'none';
+
+      if (currentMode === 'alta') {
+        document.getElementById('select-curso-existente').value = '';
+        document.getElementById('display-id').innerText = 'ID ------';
+        document.getElementById('display-id').style.color = 'var(--magenta)';
+        document.getElementById('display-id-hint').innerText = 'Lo genera el sistema al guardar';
+      } else {
+        if (!document.getElementById('select-curso-existente').value) {
+          document.getElementById('display-id').innerText = '——————';
+          document.getElementById('display-id').style.color = 'var(--slate-light)';
+          document.getElementById('display-id-hint').innerText = 'Seleccione un curso para ver su ID';
+        }
+      }
+      
+      // Restablecer el estado del botón de guardado por seguridad
+      confirmandoGuardado = false;
+      const btnGuardar = document.getElementById('btn-guardar');
+      if (btnGuardar) {
+        btnGuardar.innerText = 'Guardar Curso';
+        btnGuardar.style.background = '';
+      }
+      
+      actualizarEstadoFormulario();
+    }
+
+    function onProfesor() {}
+    let confirmandoGuardado = false;
+
+    function guardarCurso() {
+      const btn = document.getElementById('btn-guardar');
+      
+      // 1. Limpiar todos los errores visuales previos antes de evaluar
+      document.querySelectorAll('.field').forEach(el => el.classList.remove('error'));
+
+      let tieneErrores = false;
+
+      // Evaluar campos solo si están habilitados (evita validar campos bloqueados en MODIFICACIÓN)
+      
+      // Validación: Nombre del curso (Obligatorio, max 100)
+      const fieldNombre = document.getElementById('nombre');
+      if (!fieldNombre.disabled && (!fieldNombre.value.trim() || fieldNombre.value.length > 100)) {
+        document.getElementById('f-nombre').classList.add('error');
+        tieneErrores = true;
+      }
+
+      // Validación: Temática (Obligatorio)
+      const fieldTematica = document.getElementById('tematica');
+      if (!fieldTematica.disabled && !fieldTematica.value) {
+        document.getElementById('f-tematica').classList.add('error');
+        tieneErrores = true;
+      }
+
+      // Validación: Profesor (Obligatorio)
+      const fieldProfesor = document.getElementById('profesor');
+      if (!fieldProfesor.disabled && !fieldProfesor.value) {
+        document.getElementById('f-profesor').classList.add('error');
+        tieneErrores = true;
+      }
+
+      // Validación: Descripción (Obligatorio, max 500)
+      const fieldDescripcion = document.getElementById('descripcion');
+      if (!fieldDescripcion.disabled && (!fieldDescripcion.value.trim() || fieldDescripcion.value.length > 500)) {
+        document.getElementById('f-descripcion').classList.add('error');
+        tieneErrores = true;
+      }
+
+      // Validación: Precio (Obligatorio, formato numérico con coma decimal opcional, hasta 11 posiciones)
+      const fieldPrecio = document.getElementById('precio');
+      // Remueve puntos de miles si el usuario los pone, limpia espacios y valida que sea numérico válido
+      const precioLimpio = fieldPrecio.value.replace(/\./g, '').replace(',', '.').trim();
+      if (!fieldPrecio.disabled && (!precioLimpio || isNaN(precioLimpio) || parseFloat(precioLimpio) < 0 || fieldPrecio.value.length > 14)) {
+        document.getElementById('f-precio').classList.add('error');
+        tieneErrores = true;
+      }
+
+      // Validación: Duración (Obligatorio, numérico, max 5 caracteres)
+      const fieldDuracion = document.getElementById('duracion');
+      const duracionLimpia = fieldDuracion.value.replace(',', '.').trim();
+      if (!fieldDuracion.disabled && (!duracionLimpia || isNaN(duracionLimpia) || fieldDuracion.value.length > 6)) {
+        document.getElementById('f-duracion').classList.add('error');
+        tieneErrores = true;
+      }
+
+      // Validación: Comisión (Obligatorio, numérico, menor o igual a 100)
+      const fieldComision = document.getElementById('comision');
+      const comisionLimpia = fieldComision.value.replace('%', '').replace(',', '.').trim();
+      if (!fieldComision.disabled && (!comisionLimpia || isNaN(comisionLimpia) || parseFloat(comisionLimpia) > 100 || parseFloat(comisionLimpia) < 0)) {
+        document.getElementById('f-comision').classList.add('error');
+        tieneErrores = true;
+      }
+
+      // Validación: Fecha Desde (Obligatorio)
+      const fieldDesde = document.getElementById('fecha-desde');
+      if (!fieldDesde.disabled && !fieldDesde.value) {
+        document.getElementById('f-fecha-desde').classList.add('error');
+        tieneErrores = true;
+      }
+
+      // Validación: Fecha Hasta (Opcional, pero si existe debe ser mayor o igual a Fecha Desde)
+      const fieldHasta = document.getElementById('fecha-hasta');
+      if (!fieldHasta.disabled && fieldHasta.value && fieldDesde.value) {
+        if (new Date(fieldHasta.value) < new Date(fieldDesde.value)) {
+          document.getElementById('f-fecha-hasta').classList.add('error');
+          tieneErrores = true;
+        }
+      }
+
+      // Si se detectó algún error de validación, frenamos el guardado
+      if (tieneErrores) {
+        alert('Por favor, corrija los campos marcados en rojo antes de continuar.');
+        // Reestablecemos el botón de confirmación por si estaba en segundo clic
+        confirmandoGuardado = false;
+        btn.innerText = 'Guardar Curso';
+        btn.style.background = '';
+        return;
+      }
+
+      // 2. Flujo normal de doble confirmación si los datos están correctos
+      if (!confirmandoGuardado) {
+        confirmandoGuardado = true;
+        btn.innerText = 'Confirmar';
+        btn.style.background = '#2c3e50'; 
+      } else {
+        alert('Curso guardado con exito.\n\n');
+        confirmandoGuardado = false;
+        btn.innerText = 'Guardar Curso';
+        btn.style.background = '';
+        limpiar(); // Limpia tras guardar con éxito
+      }
+    }
+
+    // Inicialización del estado por defecto
+    actualizarEstadoFormulario();
+  </script>
 </body>
 </html>
